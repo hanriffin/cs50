@@ -26,7 +26,7 @@ const code_challenge = base64Encode(sha256(code_verifier));
 
 router.get("/login", (req, res) => {
     var state = crypto.randomBytes(16).toString('hex');
-    var scope = ['user-read-private user-read-email user-read-currently-playing user-read-playback-position user-top-read'];
+    var scope = ['user-read-private', 'user-read-email', 'user-read-playback-state', 'user-modify-playback-state', 'user-read-currently-playing', 'user-read-playback-position', 'user-top-read'].join(' ');
     req.headers['Access-Control-Allow-Origin'] = '*';
     // req.headers['Access-Control-Allow-Credentials'] = 'true';
     // req.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
@@ -98,6 +98,35 @@ router.get("/callback", (req, res) => {
             })
             .catch(err => console.log(err));
     };
+});
+
+
+// Request a refreshed Access Token (Not tested)
+router.get('/refresh_token', function (req, res) {
+    let formData = new URLSearchParams();
+    formData.append('grant_type', 'refresh_token');
+    formData.append('client_id', client_id);
+    formData.append('refresh_token', refresh_token);
+
+    fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        body: formData.toString(),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    }).then(response => response.json())
+        .then(data => {
+            access_token = data.access_token;
+            console.log(data.access_token);
+
+            // Redirect back to frontend
+            // Add tokens in headers so they can be extracted later
+            res.redirect('http://localhost:3000/#' +
+                queryString.stringify({
+                    access_token: access_token,
+                    // refresh_token: refresh_token
+                }));
+        })
 });
 
 module.exports = router;

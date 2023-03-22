@@ -1,51 +1,75 @@
 import React from 'react';
 import { useState, useContext, useEffect } from "react";
 import { Context } from '../utils/context.js';
-// import { get } from '../utils/extractdata.js';
+import queryString from 'querystring';
+import { get } from '../utils/get.js';  // function to send request to API 
 
 function Home() {
 
     const ACCESS_TOKEN = useContext(Context);
-    const [profile, setProfile] = useState({});
-    const [TopArtists, setTopArtists] = useState([]);
+    const [profile, setProfile] = useState({});         // profile is an obj hence {}
+    const [TopArtists, setTopArtists] = useState([]);   // array
+    const [TopTracks, setTopTracks] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
 
         // Get profile data
         const getProfile = async () => {
-            const response = await fetch('https://api.spotify.com/v1/me', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + ACCESS_TOKEN
-                }
-            })
-            const profile = await response.json();
-            console.log(profile);
+            const profile = await get('https://api.spotify.com/v1/me', 'GET', ACCESS_TOKEN);
+
             setProfile(profile);
-            setLoading(false);
+            // console.log(profile);
         };
 
         // Get top artists
         const getTopArtists = async () => {
-            const response = await fetch('https://api.spotify.com/v1/me/top/artists', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + ACCESS_TOKEN
-                }
-            })
-            const arr = await response.json()
-            const TopArtists = await arr.items.map(function (d) { return { name: d.name, id: d.id, genres: d.genres } });
-            setTopArtists(TopArtists);
-            setLoading(false);
+            const response = await get('https://api.spotify.com/v1/me/top/artists', 'GET', ACCESS_TOKEN);
+            const TopArtists = await response.items.map(function (d) { return { name: d.name, id: d.id, genres: d.genres } });
 
-            console.log(arr);
-            console.log(TopArtists)
+            setTopArtists(TopArtists);
+            // console.log(TopArtists)
         };
-        getProfile();
-        getTopArtists();
+
+        // Get top tracks
+        const getTopTracks = async () => {
+            const response = await get('https://api.spotify.com/v1/me/top/tracks?' +
+                queryString.stringify({
+                    limit: '50',
+                    time_range: 'long_term'
+                }), 'GET', ACCESS_TOKEN);
+            const TopTracks = await response.items.map(function (d) { return { name: d.name, id: d.id, album: d.album.name } });
+
+            // Note: Do not run setState twice (i.e. once here and once in getAudioFeatures)
+            return TopTracks;
+            // getAudioFeatures(TopTracks);
+        };
+
+        // Get audio features of tracks
+        const getAudioFeatures = async (tracks) => {
+            const feat = await get('https://api.spotify.com/v1/audio-features?' +
+                queryString.stringify({
+                    ids: tracks.map(d => d.id).join(',')
+                }), 'GET', ACCESS_TOKEN);
+            const TopTracksFeat = await tracks.map((d, index) => {
+                return { ...d, features: feat.audio_features[index] }
+            })
+
+            setTopTracks(TopTracksFeat);
+            // console.log(TopTracksFeat[0].features.valence);
+            console.log(TopTracksFeat);
+        };
+
+        // Run all async functions in parallel first. When they are done, set loading to false
+        Promise.all(
+            [getProfile(),
+            getTopArtists(),
+            getTopTracks().then(d => getAudioFeatures(d))])
+            .then(() => {
+                setLoading(false);
+                console.log('Done!');
+            });
+
     }, []);
 
     if (loading) {
@@ -63,6 +87,11 @@ function Home() {
             <ol>
                 {TopArtists.map(d => (
                     <li key={d.name}>{d.name} Genre: {d.genres[0]} </li>
+                ))}
+            </ol>
+            <ol>
+                {TopTracks.map(d => (
+                    <li key={d.name}>{d.name} {d.features.valence}</li>
                 ))}
             </ol>
         </>
