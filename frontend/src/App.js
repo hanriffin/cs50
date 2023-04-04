@@ -14,7 +14,7 @@ function App() {
   useEffect(() => {
     getToken();
   }, []);
-
+  
   // Retrieve token and save it
   const getToken = async () => {
     function getHashparams() {
