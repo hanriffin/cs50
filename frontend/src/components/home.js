@@ -14,30 +14,11 @@ function Home() {
     const [SavedTracks, setSavedTracks] = useState([]);
     const [usedDevices, setDevices] = useState([]);
     const [RecentTrack, setRecentTrack] = useState([]);
-    const [avgAcoustic,setAvgAcoustic] = useState([]);
-    const [avgAcousticness, setAvgAcousticness] = useState([]);
-    const [avgDanceability, setAvgDanceability] = useState([]);
-    const [avgEnergy, setAvgEnergy] = useState([]);
-    const [avgInstrumental, setAvgInstrumental] = useState([]);
-    const [avgLoudness, setAvgLoudness] = useState([]);
-    const [avgTempo, setAvgTempo] = useState([]);
-    const [avgValence, setAvgValence] = useState([]);
-    const [maxAcousticness, setMaxAcousticness] = useState([]);
-    const [maxDanceability, setMaxDanceability] = useState([]);
-    const [maxEnergy, setMaxEnergy] = useState([]);
-    const [maxInstrumental, setMaxInstrumental] = useState([]);
-    const [maxLoudness, setMaxLoudness] = useState([]);
-    const [maxTempo, setMaxTempo] = useState([]);
-    const [maxValence, setMaxValence] = useState([]);
-    const [minAcousticness, setMinAcousticness] = useState([]);
-    const [minDanceability, setMinDanceability] = useState([]);
-    const [minEnergy, setMinEnergy] = useState([]);
-    const [minInstrumental, setMinInstrumental] = useState([]);
-    const [minLoudness, setMinLoudness] = useState([]);
-    const [minTempo, setMinTempo] = useState([]);
-    const [minValence, setMinValence] = useState([]);
+
+    const [AudioFeatSummary, setAudioFeatSummary] = useState({});
+
     const [recommendations,setRecommendations] = useState([]);
-    const [RecArtist,setRecArtist] = useState([]);
+    const [RecArtist, setRecArtist] = useState([]);
 
 
     useEffect(() => {
@@ -47,7 +28,7 @@ function Home() {
             const profile = await get('https://api.spotify.com/v1/me', 'GET', ACCESS_TOKEN);
             
             setProfile(profile);
-            // console.log(profile);
+            console.log(profile);
         };
 
         // Get top artists
@@ -91,54 +72,31 @@ function Home() {
             const TopTracksFeat = await tracks.map((d, index) => {
                 return { ...d, features: feat.audio_features[index] }
             })
-            const avg_acousticness = TopTracksFeat.reduce((a,b) => a + b.features.acousticness,0)/TopTracksFeat.length 
-            const avg_danceability = TopTracksFeat.reduce((a,b) => a + b.features.danceability,0)/TopTracksFeat.length
-            const avg_energy = TopTracksFeat.reduce((a,b) => a + b.features.energy,0)/TopTracksFeat.length
-            const avg_instrumentalness = TopTracksFeat.reduce((a,b) => a + b.features.instrumentalness,0)/TopTracksFeat.length
-            const avg_loudness = TopTracksFeat.reduce((a,b) => a + b.features.loudness,0)/TopTracksFeat.length
-            const avg_tempo = TopTracksFeat.reduce((a,b) => a + b.features.tempo,0)/TopTracksFeat.length
-            const avg_valence = TopTracksFeat.reduce((a,b) => a + b.features.valence,0)/TopTracksFeat.length
-            const max_acousticness = TopTracksFeat.reduce((prev, current) => (prev.features.acousticness > current.features.acousticness) ? prev : current).features.acousticness
-            const max_danceability = TopTracksFeat.reduce((prev, current) => (prev.features.danceability > current.features.danceability) ? prev : current).features.danceability
-            const max_energy = TopTracksFeat.reduce((prev, current) => (prev.features.energy > current.features.energy) ? prev : current).features.energy
-            const max_instrumentalness = TopTracksFeat.reduce((prev, current) => (prev.features.instrumentalness > current.features.instrumentalness) ? prev : current).features.instrumentalness
-            const max_loudness = TopTracksFeat.reduce((prev, current) => (prev.features.loudness > current.features.loudness) ? prev : current).features.loudness
-            const max_tempo = TopTracksFeat.reduce((prev, current) => (prev.features.tempo > current.features.tempo) ? prev : current).features.tempo
-            const max_valence = TopTracksFeat.reduce((prev, current) => (prev.features.valence > current.features.valence) ? prev : current).features.valence
-            const min_acousticness = TopTracksFeat.reduce((prev, current) => (prev.features.acousticness < current.features.acousticness) ? prev : current).features.acousticness
-            const min_danceability = TopTracksFeat.reduce((prev, current) => (prev.features.danceability < current.features.danceability) ? prev : current).features.danceability
-            const min_energy = TopTracksFeat.reduce((prev, current) => (prev.features.energy < current.features.energy) ? prev : current).features.energy
-            const min_instrumentalness = TopTracksFeat.reduce((prev, current) => (prev.features.instrumentalness < current.features.instrumentalness) ? prev : current).features.instrumentalness
-            const min_loudness = TopTracksFeat.reduce((prev, current) => (prev.features.loudness < current.features.loudness) ? prev : current).features.loudness
-            const min_tempo = TopTracksFeat.reduce((prev, current) => (prev.features.tempo < current.features.tempo) ? prev : current).features.tempo
-            const min_valence = TopTracksFeat.reduce((prev, current) => (prev.features.valence < current.features.valence) ? prev : current).features.valence
+            
+            const maxFeat = (feat) => {
+                return Math.max(...TopTracksFeat.map(o => o.features[feat]));
+            }
+            const minFeat = (feat) => {
+                return Math.min(...TopTracksFeat.map(o => o.features[feat]));
+            }
+            const avgFeat = (feat) => {
+                return TopTracksFeat.reduce((a, b) => a + b.features[feat], 0)/TopTracksFeat.length;
+            }
+
+            const featSummary = {
+                acousticness: {avg: avgFeat('acousticness'), min: minFeat('acousticness'), max: maxFeat('acousticness')},
+                danceability: {avg: avgFeat('danceability'), min: minFeat('danceability'), max: maxFeat('danceability')},
+                energy: {avg: avgFeat('energy'), min: minFeat('energy'), max: maxFeat('energy')},
+                instrumentalness: {avg: avgFeat('instrumentalness'), min: minFeat('instrumentalness'), max: maxFeat('instrumentalness')},
+                loudness: {avg: avgFeat('loudness'), min: minFeat('loudness'), max: maxFeat('loudness')},
+                tempo: {avg: avgFeat('tempo'), min: minFeat('tempo'), max: maxFeat('tempo')},
+                valence: {avg: avgFeat('valence'), min: minFeat('valence'), max: maxFeat('valence')}
+            }
+            setAudioFeatSummary(featSummary);
+            console.log(AudioFeatSummary);
+
             setTopTracks(TopTracksFeat);
             
-            // console.log(TopTracksFeat[0].features.valence);
-
-            console.log(TopTracksFeat);
-            setAvgAcousticness(avg_acousticness);
-            setAvgDanceability(avg_danceability);
-            setAvgEnergy(avg_energy);
-            setAvgInstrumental(avg_instrumentalness);
-            setAvgLoudness(avg_loudness);
-            setAvgTempo(avg_tempo);
-            setAvgValence(avg_valence);
-            setMaxAcousticness(max_acousticness);
-            setMaxDanceability(max_danceability);
-            setMaxEnergy(max_energy);
-            setMaxInstrumental(max_instrumentalness);
-            setMaxLoudness(max_loudness);
-            setMaxTempo(max_tempo);
-            setMaxValence(max_valence);
-            setMinAcousticness(min_acousticness);
-            setMinDanceability(min_danceability);
-            setMinEnergy(min_energy);
-            setMinInstrumental(min_instrumentalness);
-            setMinLoudness(min_loudness);
-            setMinTempo(min_tempo);
-            setMinValence(min_valence);
-
 
         };
         const getSaved = async () => {
@@ -177,7 +135,6 @@ function Home() {
             
             setRecommendations(newRecs)
             console.log(newRecs)
-            
         }
         
 
@@ -188,7 +145,6 @@ function Home() {
             getSaved(),
             getDevices(),
             getRecent(),
-            getRecommendations(),
             getTopTracks().then(d => getAudioFeatures(d)),
             getRecTopArtists().then(d => getRecommendations(d))
             ])
@@ -232,12 +188,12 @@ function Home() {
             </ol>
             <div>Top Artists {JSON.stringify(TopArtists.name)}</div>
 
-            <ol>
+            <ol><p>Top Artists</p>
                 {TopArtists.map(d => (
                     <li key={d.name}>{d.name} Genre: {d.genres[0]} Images:{d.images} Popularity:{d.popularity} </li>
                 ))}
             </ol>
-            <div>
+            <div><p>Top Tracks</p>
                 {TopTracks.map(d => (
                     <tr key={d.name}>{d.name} {d.features.valence} {d.images} Popularity: {d.popularity}</tr>
                 ))}
@@ -245,18 +201,23 @@ function Home() {
                     <img src={d.images} alt={d.name}></img>
                 ))}
             </div>
-            <ol>
+            <ol><p>Saved Tracks</p>
                 {SavedTracks.map(d => (
                     <li key={d.name}>{d.name} {d.disc}</li>
                 ))}
             </ol>
-            <ol>
+            <ol><p>Recent Tracks</p>
                 {RecentTrack.map(d =>
                     <li key={d.name}>{d.name}</li>)}
             </ol>
             <div>
-                <li>Average Acousticness: {avgAcousticness}</li>
-                <li>{maxAcousticness}</li>
+                <li>Average Acousticness: {AudioFeatSummary.acousticness.avg}</li>
+                <li>{AudioFeatSummary.acousticness.max}</li>
+            </div>
+            <div>
+                {recommendations.map(d => (
+                    <li key={d.name}>{d.name}</li>
+                ))}
             </div>
             <div>
                 {recommendations.map(d => (
