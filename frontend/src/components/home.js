@@ -33,26 +33,28 @@ import "../index.css";
 
 
 function Home() {
-  const {ACCESS_TOKEN,chartCurrentTab,setChartCurrentTab,chartrsCurrentTab,setrsChartCurrentTab,    chartrpCurrentTab,setrpChartCurrentTab,    sortatt, setSortatt,    sorttempoatt, setSorttempoatt,    sortrsatt, setSortrsatt,    sortrstempoatt, setSortrstempoatt,    sortrpatt, setSortrpatt,    sortrptempoatt, setSortrptempoatt,    profile, setProfile,  TopArtists, setTopArtists,  TopTracks, setTopTracks,  loading, setLoading,  SavedTracks, setSavedTracks,  usedDevices, setDevices,  RecentTrack, setRecentTrack,  AudioFeatSummary, setAudioFeatSummary,  AudioFeatSavedSummary, setAudioFeatSavedSummary,  AudioFeatRecentSummary, setAudioFeatRecentSummary,  recommendations, setRecommendations,  trackRecommendations, setTrackRecommendations,  profileid, setprofileid,  recplaylistid, setrecplaylistid,  songsAdded, setSongsAdded,  songsAdded1, setSongsAdded1,  toptracksdata, settoptracksdata,  data1, setdata1,  toptrackstempodata, settoptrackstempodata,  savedtracksdata, setsavedtracksdata,  data4, setdata4,  savedtrackstempodata, setsavedtrackstempodata,  recenttracksdata, setrecenttracksdata,  data7, setdata7,  recenttrackstempodata, setrecenttrackstempodata,  recURI, setRecURI,  recURI1, setRecURI1,  recCounter, setRecCounter,  term, setTerm,  range, setRange,  forms, setForms,  recrange, setRecrange,  recforms, setRecForms,  cpsucc, setcpsucc,  cpsucc1, setcpsucc1,  showclose, setshowclose,  errorint, seterrorint,  showalert, setshowalert,  currentTab,setCurrentTab,playlistTitle,setPlaylistTitle
-  } = useContext(Context)
-  console.log(ACCESS_TOKEN)
+  
+
+  const att = useContext(Context);
+  
+  console.log(att.ACCESS_TOKEN)
   
 
 
   useEffect(() => {
-    console.log(ACCESS_TOKEN);
-    console.log(term);
+    console.log(att.ACCESS_TOKEN);
+    console.log(att.term);
 
     // Get profile data
     const getProfile = async () => {
       const profile = await get(
         "https://api.spotify.com/v1/me",
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       console.log(profile);
-      setProfile(profile);
-      setprofileid(profile.id);
+      att.setProfile(profile);
+      att.setprofileid(profile.id);
       console.log(typeof profile.id);
       // console.log(profile);
     };
@@ -70,12 +72,12 @@ function Home() {
       const response = await get(
         "https://api.spotify.com/v1/me/top/artists?" +
           queryString.stringify({
-            limit: range,
-            time_range: term,
+            limit: att.range,
+            time_range: att.term,
           }),
 
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       const TopArtists = await response.items.map(function (d) {
         return {
@@ -88,7 +90,7 @@ function Home() {
           url: d.external_urls.spotify,
         };
       });
-      setTopArtists(TopArtists);
+      att.setTopArtists(TopArtists);
       console.log(response);
 
       // console.log(TopArtists)
@@ -99,10 +101,10 @@ function Home() {
         "https://api.spotify.com/v1/me/top/tracks?" +
           queryString.stringify({
             limit: "50",
-            time_range: term,
+            time_range: att.term,
           }),
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       const TopTracks = await response.items.map(function (d) {
         return {
@@ -124,11 +126,11 @@ function Home() {
         "https://api.spotify.com/v1/me/top/artists?" +
           queryString.stringify({
             limit: "50",
-            time_range: term,
+            time_range: att.term,
           }),
 
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       const recTopArtists = await response.items.map(function (d) {
         return {
@@ -149,11 +151,11 @@ function Home() {
       const response = await get(
         "https://api.spotify.com/v1/me/top/tracks?" +
           queryString.stringify({
-            limit: range,
-            time_range: term,
+            limit: att.range,
+            time_range: att.term,
           }),
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       const TopTracks = await response.items.map(function (d) {
         return {
@@ -178,7 +180,7 @@ function Home() {
             ids: tracks.map((d) => d.id).join(","),
           }),
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       const TopTracksFeat = await tracks.map((d, index) => {
         return { ...d, features: feat.audio_features[index] };
@@ -196,19 +198,19 @@ function Home() {
         };
       });
       console.log(data);
-      settoptracksdata(data);
+      att.settoptracksdata(data);
 
       const data1 = TopTracksFeat.slice(0, 5).map((d) => {
         return { name: d.name, danceability: d.features.danceability };
       });
       console.log(data1);
-      setdata1(data1);
+      att.setdata1(data1);
 
       const data2 = TopTracksFeat.map((d, index) => {
         return { name: d.name, tempo: d.features.tempo, index: index };
       });
       console.log(data);
-      settoptrackstempodata(data2);
+      att.settoptrackstempodata(data2);
 
       const maxFeat = (feat) => {
         return Math.max(...TopTracksFeat.map((o) => o.features[feat]));
@@ -262,10 +264,10 @@ function Home() {
           },
         },
       ];
-      setAudioFeatSummary(featSummary);
+      att.setAudioFeatSummary(featSummary);
       console.log(featSummary);
 
-      setTopTracks(TopTracksFeat);
+      att.setTopTracks(TopTracksFeat);
 
       // console.log(TopTracksFeat[0].features.valence);
 
@@ -278,7 +280,7 @@ function Home() {
             limit: "50",
           }),
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       const savedTracks = await saved.items.map(function (d) {
         return {
@@ -288,7 +290,7 @@ function Home() {
           artist: d.track.artists[0].name
         };
       });
-      setSavedTracks(savedTracks);
+      att.setSavedTracks(savedTracks);
       // console.log(TopArtists)
       console.log(savedTracks);
       return savedTracks;
@@ -301,7 +303,7 @@ function Home() {
             ids: tracks.map((d) => d.id).join(","),
           }),
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       const TopTracksFeat = await tracks.map((d, index) => {
         return { ...d, features: feat.audio_features[index] };
@@ -319,18 +321,18 @@ function Home() {
         };
       });
       console.log(data3);
-      setsavedtracksdata(data3);
+      att.setsavedtracksdata(data3);
 
       const data4 = TopTracksFeat.slice(0, 5).map((d) => {
         return { name: d.name, danceability: d.features.danceability };
       });
-      setdata4(data4);
+      att.setdata4(data4);
 
       const data5 = TopTracksFeat.map((d,index) => {
         return { name: d.name, tempo: d.features.tempo, index:index };
       });
 
-      setsavedtrackstempodata(data5);
+      att.setsavedtrackstempodata(data5);
 
       const maxFeat = (feat) => {
         return Math.max(...TopTracksFeat.map((o) => o.features[feat]));
@@ -384,7 +386,7 @@ function Home() {
           },
         },
       ];
-      setAudioFeatSavedSummary(featSummary);
+      att.setAudioFeatSavedSummary(featSummary);
       console.log(featSummary);
 
       // console.log(TopTracksFeat[0].features.valence);
@@ -394,7 +396,7 @@ function Home() {
       const devices = await get(
         "https://api.spotify.com/v1/me/player/devices",
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       const usedDevices = await devices.devices.map(function (d) {
         return {
@@ -405,7 +407,7 @@ function Home() {
           type: d.type,
         };
       });
-      setDevices(usedDevices);
+      att.setDevices(usedDevices);
       console.log(usedDevices);
     };
 
@@ -416,7 +418,7 @@ function Home() {
             limit: "50",
           }),
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       const recentTrack = await recent.items.map(function (d) {
         return { name: d.track.name, id: d.track.id, artist: d.track.artists[0].name };
@@ -426,7 +428,7 @@ function Home() {
       );
       console.log(unique);
       console.log(recentTrack);
-      setRecentTrack(recentTrack);
+      att.setRecentTrack(recentTrack);
       return recentTrack;
     };
 
@@ -437,7 +439,7 @@ function Home() {
             ids: tracks.map((d) => d.id).join(","),
           }),
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       const TopTracksFeat = await tracks.map((d, index) => {
         return { ...d, features: feat.audio_features[index] };
@@ -453,18 +455,18 @@ function Home() {
           valence: d.features.valence,
         };
       });
-      setrecenttracksdata(data6);
+      att.setrecenttracksdata(data6);
 
       const data7 = TopTracksFeat.slice(0, 5).map((d) => {
         return { name: d.name, danceability: d.features.danceability };
       });
-      setdata7(data7);
+      att.setdata7(data7);
 
       const data8 = TopTracksFeat.map((d) => {
         return { name: d.name, tempo: d.features.tempo };
       });
 
-      setrecenttrackstempodata(data8);
+      att.setrecenttrackstempodata(data8);
 
       const maxFeat = (feat) => {
         return Math.max(...TopTracksFeat.map((o) => o.features[feat]));
@@ -518,7 +520,7 @@ function Home() {
           },
         },
       ];
-      setAudioFeatRecentSummary(featSummary);
+      att.setAudioFeatRecentSummary(featSummary);
       console.log(featSummary);
 
       // console.log(TopTracksFeat[0].features.valence);
@@ -528,35 +530,35 @@ function Home() {
       const recommendations = await get(
         "https://api.spotify.com/v1/recommendations?" +
           queryString.stringify({
-            limit: recrange,
+            limit: att.recrange,
             seed_artists: artists.map((d) => d.id).join(","),
           }),
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       console.log(artists.map((d) => d.id).join(","));
       const newRecs = await recommendations.tracks.map(function (d) {
         return { name: d.name, uri: d.uri,checked: false};
       });
       const songs = [];
-      for (let i = 0; i < recrange; i++) {
+      for (let i = 0; i < att.recrange; i++) {
         songs.push(newRecs[i].uri);
       }
-      setSongsAdded(songs);
+      att.setSongsAdded(songs);
       console.log(songs);
-      console.log(songsAdded);
-      setRecommendations(newRecs);
+      console.log(att.songsAdded);
+      att.setRecommendations(newRecs);
       console.log(newRecs);
     };
     const getTracksRecommendations = async (artists) => {
       const recommendations = await get(
         "https://api.spotify.com/v1/recommendations?" +
           queryString.stringify({
-            limit: recrange,
+            limit: att.recrange,
             seed_tracks: artists.map((d) => d.id).join(","),
           }),
         "GET",
-        ACCESS_TOKEN
+        att.ACCESS_TOKEN
       );
       console.log(artists.map((d) => d.id).join(","));
       const newRecs = await recommendations.tracks.map(function (d) {
@@ -564,13 +566,13 @@ function Home() {
       });
       console.log(newRecs)
       const songs1 = [];
-      for (let i = 0; i < recrange; i++) {
+      for (let i = 0; i < att.recrange; i++) {
         songs1.push(newRecs[i].uri);
       }
-      setSongsAdded1(songs1);
-      console.log(songsAdded1)
+      att.setSongsAdded1(songs1);
+      console.log(att.songsAdded1)
       console.log(songs1)
-      setTrackRecommendations(newRecs);
+      att.setTrackRecommendations(newRecs);
       console.log(newRecs)
     };
     
@@ -586,21 +588,21 @@ function Home() {
       getRecTopArtists().then((d) => getRecommendations(d)),
       getRecTopTracks().then((d) => getTracksRecommendations(d)),
     ]).then(() => {
-      setLoading(false);
+      att.setLoading(false);
       console.log("Done!");
-      console.log(recommendations)
+      console.log(att.recommendations)
     });
-  }, [forms, recforms]);
+  }, [att.forms, att.recforms]);
   
   const createPlaylist = async (newArray) => {
-    const newPlaylist = recCounter + 1;
+    const newPlaylist = att.recCounter + 1;
     const cp = await post(
-      "https://api.spotify.com/v1/users/" + profileid + "/playlists",
+      "https://api.spotify.com/v1/users/" + att.profileid + "/playlists",
 
       "POST",
-      ACCESS_TOKEN,
+      att.ACCESS_TOKEN,
       JSON.stringify({
-        name: playlistTitle,
+        name: att.playlistTitle,
         description: "New playlist",
       })
     );
@@ -608,23 +610,23 @@ function Home() {
     const addsongs = await post(
       "https://api.spotify.com/v1/playlists/" + cp.id + "/tracks",
       "POST",
-      ACCESS_TOKEN,
+      att.ACCESS_TOKEN,
       JSON.stringify({ uris: newArray })
     );
-    setRecCounter(newPlaylist);
+    att.setRecCounter(newPlaylist);
     console.log(cp.id);
-    setcpsucc(false)
-    setshowclose(true)
+    att.setcpsucc(false)
+    att.setshowclose(true)
   };
   
 
   const createPlaylist2 = async (newArray) => {
-    const newPlaylist = recCounter + 1;
+    const newPlaylist = att.recCounter + 1;
     const cp = await post(
-      "https://api.spotify.com/v1/users/" + profileid + "/playlists",
+      "https://api.spotify.com/v1/users/" + att.profileid + "/playlists",
 
       "POST",
-      ACCESS_TOKEN,
+      att.ACCESS_TOKEN,
       JSON.stringify({
         name: "Recommendation Playlist #" + newPlaylist,
         description: "New playlist",
@@ -634,11 +636,11 @@ function Home() {
     const addsongs = await post(
       "https://api.spotify.com/v1/playlists/" + cp.id + "/tracks",
       "POST",
-      ACCESS_TOKEN,
+      att.ACCESS_TOKEN,
       JSON.stringify({ uris: newArray })
     );
-    setRecCounter(newPlaylist);
-    console.log(JSON.stringify({ uris: recURI1 }))
+    att.setRecCounter(newPlaylist);
+    console.log(JSON.stringify({ uris: att.recURI1 }))
     console.log(cp.id);
   };
  
@@ -646,24 +648,24 @@ function Home() {
   const cp = (event) => {
     event.preventDefault();
     const newArray = [];
-    if (currentTab === "artistrecs") {
+    if (att.currentTab === "artistrecs") {
       
       
-      for (let i= 0; i < recommendations.length; i++) {
-        if (recommendations[i].checked === true)
-        newArray.push(recommendations[i].uri)
+      for (let i= 0; i < att.recommendations.length; i++) {
+        if (att.recommendations[i].checked === true)
+        newArray.push(att.recommendations[i].uri)
       }
-    } else if (currentTab === "trackrecs") {
-      for (let i= 0; i < trackRecommendations.length; i++) {
-        if (trackRecommendations[i].checked === true)
-        newArray.push(trackRecommendations[i].uri)
+    } else if (att.currentTab === "trackrecs") {
+      for (let i= 0; i < att.trackRecommendations.length; i++) {
+        if (att.trackRecommendations[i].checked === true)
+        newArray.push(att.trackRecommendations[i].uri)
       }
     }
     
     console.log(newArray)
     
     createPlaylist(newArray);
-    setcpsucc(true);
+    att.setcpsucc(true);
 
   };
 
@@ -675,11 +677,11 @@ function Home() {
       
       
     console.log(newArray)
-    setRecURI1(newArray);
+    att.setRecURI1(newArray);
     
     createPlaylist2(newArray);
-    setcpsucc(true);
-    setRecURI1([])
+    att.setcpsucc(true);
+    att.setRecURI1([])
   };
   
 
@@ -688,7 +690,7 @@ function Home() {
 
     
     console.log(uri)
-    const check = recommendations.map((id) => {
+    const check = att.recommendations.map((id) => {
       if (id.uri === uri) {
         console.log(!id.checked)
         return {...id, checked: !id.checked}
@@ -696,7 +698,7 @@ function Home() {
       }
       return id
     })
-    setRecommendations(check)
+    att.setRecommendations(check)
 
     console.log(check)
     //setTrackRecommendations()
@@ -705,7 +707,7 @@ function Home() {
 
     
     console.log(uri)
-    const check = trackRecommendations.map((id) => {
+    const check = att.trackRecommendations.map((id) => {
       if (id.uri === uri) {
         console.log(!id.checked)
         return {...id, checked: !id.checked}
@@ -713,7 +715,7 @@ function Home() {
       }
       return id
     })
-    setTrackRecommendations(check)
+    att.setTrackRecommendations(check)
 
     console.log(check)
     //setTrackRecommendations()
@@ -721,12 +723,12 @@ function Home() {
 
   const submitEvent = (event) => {
     event.preventDefault();
-    setForms({ ...forms, [event.target.name]: event.target.value });
+    att.setForms({ ...att.forms, [event.target.name]: event.target.value });
   };
 
   const submitEvent1 = (event) => {
     event.preventDefault();
-    setRecForms({ ...recforms, [event.target.name]: event.target.value });
+    att.setRecForms({ ...att.recforms, [event.target.name]: event.target.value });
   };
 
   const handleint = (event) => {
@@ -734,35 +736,35 @@ function Home() {
     let error = "";
     if (event.target.value > 100 || event.target.value < 1) {
       error = `${name} field must be between 1 and 100`;
-      seterrorint([error]);
-      console.log(errorint);
-      setshowalert(true);
+      att.seterrorint([error]);
+      console.log(att.errorint);
+      att.setshowalert(true);
     } else {
-      setRecrange(event.target.value);
-      seterrorint("");
-      setshowalert(false);
+      att.setRecrange(event.target.value);
+      att.seterrorint("");
+      att.setshowalert(false);
     }
   };
 
   const checkall = (event) => {
-    if (currentTab === "trackrecs") {
-      setTrackRecommendations(trackRecommendations.map(({name,uri,url}) => ({name,url,uri, checked:true}))
+    if (att.currentTab === "trackrecs") {
+      att.setTrackRecommendations(att.trackRecommendations.map(({name,uri,url}) => ({name,url,uri, checked:true}))
       
-    ) }else if (currentTab === "artistrecs") {
-      setRecommendations(recommendations.map(({name,uri}) => ({name,uri, checked:true})))
+    ) }else if (att.currentTab === "artistrecs") {
+      att.setRecommendations(att.recommendations.map(({name,uri}) => ({name,uri, checked:true})))
       console.log("hi!")
       }
-      console.log(currentTab)
+      console.log(att.currentTab)
     
     
   }
 
   const uncheckall = (event) => {
-    if (currentTab === "trackrecs") {
-      setTrackRecommendations(trackRecommendations.map(({name,uri,url}) => ({name,url,uri, checked:false}))
+    if (att.currentTab === "trackrecs") {
+      att.setTrackRecommendations(att.trackRecommendations.map(({name,uri,url}) => ({name,url,uri, checked:false}))
       
-    ) }else if (currentTab === "artistrecs") {
-      setRecommendations(recommendations.map(({name,uri}) => ({name,uri, checked:false})))
+    ) }else if (att.currentTab === "artistrecs") {
+      att.setRecommendations(att.recommendations.map(({name,uri}) => ({name,uri, checked:false})))
       console.log("hi!")
       }
     
@@ -771,46 +773,29 @@ function Home() {
   
 
   function close() {
-    setTimeout(() => setshowclose(false),3000)
+    setTimeout(() => att.setshowclose(false),3000)
   }
-  if (loading) {
+  if (att.loading) {
     return <div>Loading...</div>;
   }
 
   return (
     <>
-      <Nav
-      activeKey="/home"
-    >
-      <Nav.Item>
-        <Nav.Link href="/">Home</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link href="/analysis">Analysis</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link href="/recommendations">Recommendations</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link href="/charts" >
-          Charts
-        </Nav.Link>
-      </Nav.Item>
-    </Nav>
+      
 
       <div>
         <Container>
           <Row>
             <Col md="auto">
-              <p>Profile Name: {profile.display_name}</p>
-              <p>Country: {profile.country}</p>
-              <p>Email: {profile.email}</p>
-              <p>URLs: {profile.external_urls.spotify}</p>
-              <p>Number of followers: {profile.followers.total}</p>
-              <p>ID: {profile.id}</p>
+              <p>Profile Name: {att.profile.display_name}</p>
+              <p>Country: {att.profile.country}</p>
+              <p>Email: {att.profile.email}</p>
+              <p>URLs: {att.profile.external_urls.spotify}</p>
+              <p>Number of followers: {att.profile.followers.total}</p>
+              <p>ID: {att.profile.id}</p>
             </Col>
             <Col>
-              <Image src={profile.images[0].url} alt="profile" roundedCircle={true}></Image>
+              <Image src={att.profile.images[0].url} alt="profile" roundedCircle={true}></Image>
             </Col>
           </Row>
         </Container>
@@ -819,7 +804,7 @@ function Home() {
       <div></div>
       <h2>Your Available Devices</h2>
       <ol>
-        {usedDevices.map((d) => (
+        {att.usedDevices.map((d) => (
           <li key={d.id}>
             {d.id} Active: {String(d.active)} Name: {d.name} Type: {d.type}{" "}
             Volume: {d.volume}
@@ -862,7 +847,7 @@ function Home() {
         <form onSubmit={submitEvent}>
           <div>
             <Form.Select
-              onChange={(e) => setTerm(e.target.value)}
+              onChange={(e) => att.setTerm(e.target.value)}
               size="sm"
               className="inputbox"
               style={{ display: "inline-block" }}
@@ -873,8 +858,8 @@ function Home() {
             </Form.Select>
             <input
               type="number"
-              value={range}
-              onChange={(e) => setRange(e.target.value)}
+              value={att.range}
+              onChange={(e) => att.setRange(e.target.value)}
             ></input>
             <Button variant="outline-primary" type="submit">
               Submit
@@ -900,7 +885,7 @@ function Home() {
                 <Tab.Pane eventKey="first">
                   <Container>
                     <Row className="mx-2 row row-cols-5">
-                      {TopArtists.map((d) => {
+                      {att.TopArtists.map((d) => {
                         return (
                           <Card className="mb-2">
                             <Card.Img src={d.images} />
@@ -931,7 +916,7 @@ function Home() {
                 <Tab.Pane eventKey="second">
                   <Container>
                     <Row className="mx-2 row row-cols-5">
-                      {TopTracks.map((d) => {
+                      {att.TopTracks.map((d) => {
                         return (
                           <Card className="mb-2">
                             <Card.Img src={d.images} />
@@ -972,12 +957,12 @@ function Home() {
         >
           <Tab eventKey="savedtracks" title="Last 50 Saved Tracks">
             <ol>
-              {SavedTracks.map((d) => (
+              {att.SavedTracks.map((d) => (
                 <li key={d.name}>{d.name}, Artist: {d.artist}</li>
               ))}
             </ol>
             <ol>
-                {TopTracks.map(d => (
+                {att.TopTracks.map(d => (
                     <li key={d.name}>{d.name} {d.features.valence}</li>
                 ))}
             </ol>
@@ -1003,7 +988,7 @@ function Home() {
     <th>Average</th>
   </thead>
   <tbody>
-    {AudioFeatSummary.map((d, i) => {
+    {att.AudioFeatSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Acousticness</td>
@@ -1013,7 +998,7 @@ function Home() {
         </tr>
       );
     })}
-    {AudioFeatSummary.map((d, i) => {
+    {att.AudioFeatSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Danceability</td>
@@ -1023,7 +1008,7 @@ function Home() {
         </tr>
       );
     })}
-    {AudioFeatSummary.map((d, i) => {
+    {att.AudioFeatSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Energy</td>
@@ -1033,7 +1018,7 @@ function Home() {
         </tr>
       );
     })}
-    {AudioFeatSummary.map((d, i) => {
+    {att.AudioFeatSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Loudness</td>
@@ -1043,7 +1028,7 @@ function Home() {
         </tr>
       );
     })}
-    {AudioFeatSummary.map((d, i) => {
+    {att.AudioFeatSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Tempo</td>
@@ -1053,7 +1038,7 @@ function Home() {
         </tr>
       );
     })}
-    {AudioFeatSummary.map((d, i) => {
+    {att.AudioFeatSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Valence</td>
@@ -1079,7 +1064,7 @@ function Home() {
     <th>Average</th>
   </thead>
   <tbody>
-    {AudioFeatSavedSummary.map((d, i) => {
+    {att.AudioFeatSavedSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Acousticness</td>
@@ -1089,7 +1074,7 @@ function Home() {
         </tr>
       );
     })}
-    {AudioFeatSavedSummary.map((d, i) => {
+    {att.AudioFeatSavedSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Danceability</td>
@@ -1099,7 +1084,7 @@ function Home() {
         </tr>
       );
     })}
-    {AudioFeatSavedSummary.map((d, i) => {
+    {att.AudioFeatSavedSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Energy</td>
@@ -1109,7 +1094,7 @@ function Home() {
         </tr>
       );
     })}
-    {AudioFeatSavedSummary.map((d, i) => {
+    {att.AudioFeatSavedSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Loudness</td>
@@ -1119,7 +1104,7 @@ function Home() {
         </tr>
       );
     })}
-    {AudioFeatSavedSummary.map((d, i) => {
+    {att.AudioFeatSavedSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Tempo</td>
@@ -1129,7 +1114,7 @@ function Home() {
         </tr>
       );
     })}
-    {AudioFeatSavedSummary.map((d, i) => {
+    {att.AudioFeatSavedSummary.map((d, i) => {
       return (
         <tr key={i}>
           <td>Valence</td>
@@ -1147,7 +1132,7 @@ function Home() {
         <form onSubmit={submitEvent1} >
           <input
             type="number"
-            value={recrange}
+            value={att.recrange}
             max={100}
             min={1}
             name="rec"
@@ -1157,7 +1142,7 @@ function Home() {
           <Button variant="primary" type="submit" >
             Submit
           </Button>
-          <Alert show={showalert}>{errorint}</Alert>
+          <Alert show={att.showalert}>{att.errorint}</Alert>
         </form>
       </div>
       <div id="buttonalignright">
@@ -1175,15 +1160,15 @@ function Home() {
           id="fill-tab-example"
           className="mb-3"
           fill
-          activeKey={currentTab}
-          onSelect={(key) => setCurrentTab(key)}
+          activeKey={att.currentTab}
+          onSelect={(key) => att.setCurrentTab(key)}
         >
           <Tab
             eventKey="artistrecs"
             title="Recommendations based on Top Artists"
           >
             <ol>
-              {recommendations.map((d) => [
+              {att.recommendations.map((d) => [
                 <React.Fragment>
                   <div>
                     <li key={d.name}>
@@ -1201,11 +1186,11 @@ function Home() {
               ])}
             </ol>
             <div>
-              <Button onClick={() => setcpsucc(true)}>Create Playlist</Button>
+              <Button onClick={() => att.setcpsucc(true)}>Create Playlist</Button>
             </div>
             <Modal 
-        show={cpsucc} 
-        onHide={() => setcpsucc(false)}
+        show={att.cpsucc} 
+        onHide={() => att.setcpsucc(false)}
       >
       <Modal.Header closeButton>
         <Modal.Title>Modal Form Title</Modal.Title>
@@ -1213,7 +1198,7 @@ function Home() {
       <Modal.Body>
           <Form.Group >
               <Form.Label>Name: </Form.Label>
-              <Form.Control type="text" onChange={(e) => setPlaylistTitle(e.target.value)}  placeholder="name input"/>           
+              <Form.Control type="text" onChange={(e) => att.setPlaylistTitle(e.target.value)}  placeholder="name input"/>           
           </Form.Group>
       </Modal.Body>
       <Modal.Footer>
@@ -1223,7 +1208,7 @@ function Home() {
       </Modal.Footer>
     </Modal>
     <Modal 
-        show={showclose} 
+        show={att.showclose} 
         onHide={close()}
       >
       <Modal.Header closeButton>
@@ -1237,7 +1222,7 @@ function Home() {
           </Tab>
           <Tab eventKey="trackrecs" title="Recommendations based on Top Tracks">
             <ol>
-              {trackRecommendations.map((d) => [
+              {att.trackRecommendations.map((d) => [
                 <React.Fragment>
                   <div>
                     <li key={d.name}>
@@ -1255,7 +1240,7 @@ function Home() {
               ])}
             </ol>
             <div>
-              <Button onClick={() => setcpsucc(true)}>Create Playlist</Button>
+              <Button onClick={() => att.setcpsucc(true)}>Create Playlist</Button>
             </div>
           </Tab>
         </Tabs>

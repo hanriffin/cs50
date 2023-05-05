@@ -1,7 +1,7 @@
 import './App.css';
 import Home from './components/home';
 import Login from './components/login';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Link, Routes } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import { Context } from './utils/context.js';
 import Analysis from './components/analysis';
@@ -89,21 +89,40 @@ function App() {
 
   return (
     // Context.provider allows ACCESS_TOKEN to be used in all components inside it
-
-      <Context.Provider value={{ACCESS_TOKEN,chartCurrentTab,setChartCurrentTab,chartrsCurrentTab,setrsChartCurrentTab,    chartrpCurrentTab,setrpChartCurrentTab,    sortatt, setSortatt,    sorttempoatt, setSorttempoatt,    sortrsatt, setSortrsatt,    sortrstempoatt, setSortrstempoatt,    sortrpatt, setSortrpatt,    sortrptempoatt, setSortrptempoatt,    profile, setProfile,  TopArtists, setTopArtists,  TopTracks, setTopTracks,  loading, setLoading,  SavedTracks, setSavedTracks,  usedDevices, setDevices,  RecentTrack, setRecentTrack,  AudioFeatSummary, setAudioFeatSummary,  AudioFeatSavedSummary, setAudioFeatSavedSummary,  AudioFeatRecentSummary, setAudioFeatRecentSummary,  recommendations, setRecommendations,  trackRecommendations, setTrackRecommendations,  profileid, setprofileid,  recplaylistid, setrecplaylistid,  songsAdded, setSongsAdded,  songsAdded1, setSongsAdded1,  toptracksdata, settoptracksdata,  data1, setdata1,  toptrackstempodata, settoptrackstempodata,  savedtracksdata, setsavedtracksdata,  data4, setdata4,  savedtrackstempodata, setsavedtrackstempodata,  recenttracksdata, setrecenttracksdata,  data7, setdata7,  recenttrackstempodata, setrecenttrackstempodata,  recURI, setRecURI,  recURI1, setRecURI1,  recCounter, setRecCounter,  term, setTerm,  range, setRange,  forms, setForms,  recrange, setRecrange,  recforms, setRecForms,  cpsucc, setcpsucc,  cpsucc1, setcpsucc1,  showclose, setshowclose,  errorint, seterrorint,  showalert, setshowalert,  currentTab,setCurrentTab,playlistTitle,setPlaylistTitle
-      }}> 
-      
-     <BrowserRouter>
-        <Routes>
-          <Route path="/"  element={ACCESS_TOKEN ? <Home /> : <Login />} />
+      <Router>
+        <div>
+          <nav>
+            <ul>
+              <li>
+                <Link to="/">Home</Link>
+              </li>
+              <li>
+                <Link to="/analysis">Analysis</Link>
+                </li>
+              <li>
+                <Link to="/charts">Charts</Link>
+                </li>
+              <li>
+                <Link to="/recommendations">Recommendations</Link>
+              </li>
+            </ul>
+          </nav>
+        
+      <Context.Provider value={{ACCESS_TOKEN,chartCurrentTab,setChartCurrentTab,chartrsCurrentTab,setrsChartCurrentTab,chartrpCurrentTab,setrpChartCurrentTab,sortatt, setSortatt,sorttempoatt, setSorttempoatt,sortrsatt, setSortrsatt,sortrstempoatt, setSortrstempoatt,sortrpatt, setSortrpatt,sortrptempoatt, setSortrptempoatt,profile, setProfile,TopArtists, setTopArtists,TopTracks, setTopTracks,loading, setLoading,SavedTracks, setSavedTracks,usedDevices, setDevices,RecentTrack, setRecentTrack,AudioFeatSummary, setAudioFeatSummary,AudioFeatSavedSummary, setAudioFeatSavedSummary,AudioFeatRecentSummary, setAudioFeatRecentSummary,recommendations, setRecommendations,trackRecommendations, setTrackRecommendations,profileid, setprofileid,recplaylistid, setrecplaylistid,songsAdded, setSongsAdded,songsAdded1, setSongsAdded1,toptracksdata, settoptracksdata,data1, setdata1,toptrackstempodata, settoptrackstempodata,savedtracksdata, setsavedtracksdata,data4, setdata4,savedtrackstempodata, setsavedtrackstempodata,recenttracksdata, setrecenttracksdata,data7, setdata7,recenttrackstempodata, setrecenttrackstempodata,recURI, setRecURI,recURI1, setRecURI1,recCounter, setRecCounter,term, setTerm,range, setRange,forms, setForms,recrange, setRecrange,recforms, setRecForms,cpsucc, setcpsucc,cpsucc1, setcpsucc1,showclose, setshowclose,errorint, seterrorint,showalert, setshowalert,currentTab,setCurrentTab,playlistTitle,setPlaylistTitle
+    }}> 
+      <Routes>
+      <Route path="/"  element={ACCESS_TOKEN ? <Home /> : <Login />} />
           <Route path="/analysis" element={ACCESS_TOKEN ? <Analysis /> : <Login />} />
           <Route path="/charts" element={<Charts />} />
           <Route path="/recommendations" element={<Recommendations />} />
-        </Routes>
-      </BrowserRouter>
+      </Routes>
+
+          
+
       
     </Context.Provider>
-
+    </div>
+    </Router>
     
 
   )
