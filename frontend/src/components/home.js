@@ -976,12 +976,10 @@ function Home() {
                 <li key={d.name}>{d.name}, Artist: {d.artist}</li>
               ))}
             </ol>
-          </Tab>
-          <Tab eventKey="tracksplayed" title="Last 50 Tracks Played">
             <ol>
-              {RecentTrack.map((d) => (
-                <li key={d.name}>{d.name}, Artist: {d.artist}</li>
-              ))}
+                {TopTracks.map(d => (
+                    <li key={d.name}>{d.name} {d.features.valence}</li>
+                ))}
             </ol>
           </Tab>
         </Tabs>
