@@ -26,7 +26,7 @@ const code_challenge = base64Encode(sha256(code_verifier));
 
 router.get("/login", (req, res) => {
     var state = crypto.randomBytes(16).toString('hex');
-    var scope = ['user-read-private', 'user-read-email', 'user-read-playback-state', 'user-modify-playback-state', 'user-read-currently-playing', 'user-read-playback-position', 'user-top-read'].join(' ');
+    var scope = ['user-read-private', 'user-read-email', 'user-read-playback-state', 'user-modify-playback-state', 'user-read-currently-playing', 'user-read-playback-position', 'user-top-read', 'user-library-read', 'user-read-recently-played', 'playlist-modify-public', 'playlist-modify-private'].join(' ');
     req.headers['Access-Control-Allow-Origin'] = '*';
     // req.headers['Access-Control-Allow-Credentials'] = 'true';
     // req.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
