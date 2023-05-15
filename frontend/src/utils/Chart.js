@@ -12,9 +12,6 @@ import {
  export function Chart({ data }) {
   return (
     <>
-            <h1 className="text-heading">
-                Line Chart Using Rechart
-            </h1>
             <ResponsiveContainer width="100%" aspect={3}>
                 <LineChart data={data} margin={{ right: 300, bottom: 100}}>
                     <CartesianGrid />
@@ -42,9 +39,6 @@ import {
 export function Chart1({ data }) {
     return (
       <>
-              <h1 className="text-heading">
-                  Line Chart Using Rechart
-              </h1>
               <ResponsiveContainer width="100%" aspect={3}>
                   <LineChart data={data} margin={{ right: 300, bottom: 100}}>
                       <CartesianGrid />

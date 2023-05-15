@@ -22,6 +22,7 @@ input[type=number], select {
   height:40px;
   border : 1px #ccc solid;
   vertical-align:top;
+  margin-right: 10px;
 }
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -35,7 +36,7 @@ input::-webkit-inner-spin-button {
 }
 
 .inputbox {
-  width: 200px !important
+  width: 150px !important
 }
 
 form {
@@ -44,6 +45,7 @@ form {
   align-items: center;
   justify-content: flex-end;
   height: 100%;
+  margin: 10px;
 }
 #buttonalignright {
   display: flex;
@@ -51,4 +53,21 @@ form {
   align-items: center;
   justify-content: flex-end;
   height: 100%;
+  margin-right:10px
+}
+
+#form {
+  margin-right:10px;
+}
+
+#gap {
+  margin-top:50px;
+}
+
+#form {
+  width:150px;
+}
+
+label {
+  margin-right:5px;
 }

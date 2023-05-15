@@ -1,50 +1,23 @@
 import React from "react";
-import { useState, useContext, useEffect, Route, Routes } from "react";
-import {Context} from "../utils/context.js";
+import {  useContext, useEffect } from "react";
+import { Context } from "../utils/context.js";
 import queryString from "querystring";
-import {Analysis} from "./analysis.js";
-import { get, post } from "../utils/get.js"; // function to send request to API
+import { get } from "../utils/get.js"; // function to send request to API
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
   Container,
-  InputGroup,
-  FormControl,
   Image,
-  Button,
   Row,
-  Card,
-  ListGroup,
-  Tab,
-  Col,
-  Nav,
-  Tabs,
-  Table,
-  Alert,
-  Form,
-  Overlay,
-  Fade,
-  Tooltip,
-  OverlayTrigger,
-  Popover,
-  Modal
+  Col
 } from "react-bootstrap";
-import { Chart, Chart1 } from "../utils/Chart.js";
 import "../index.css";
-
 
 function Home() {
   
-
+  
   const att = useContext(Context);
-  
-  console.log(att.ACCESS_TOKEN)
-  
-
 
   useEffect(() => {
-    console.log(att.ACCESS_TOKEN);
-    console.log(att.term);
-
     // Get profile data
     const getProfile = async () => {
       const profile = await get(
@@ -52,11 +25,8 @@ function Home() {
         "GET",
         att.ACCESS_TOKEN
       );
-      console.log(profile);
+
       att.setProfile(profile);
-      att.setprofileid(profile.id);
-      console.log(typeof profile.id);
-      // console.log(profile);
     };
     const shuffle = (array) => {
       for (var i = array.length - 1; i > 0; i--) {
@@ -72,13 +42,14 @@ function Home() {
       const response = await get(
         "https://api.spotify.com/v1/me/top/artists?" +
           queryString.stringify({
-            limit: att.range,
+            limit: "50",
             time_range: att.term,
           }),
 
         "GET",
         att.ACCESS_TOKEN
       );
+
       const TopArtists = await response.items.map(function (d) {
         return {
           name: d.name,
@@ -90,10 +61,8 @@ function Home() {
           url: d.external_urls.spotify,
         };
       });
+      
       att.setTopArtists(TopArtists);
-      console.log(response);
-
-      // console.log(TopArtists)
     };
 
     const getRecTopTracks = async () => {
@@ -116,9 +85,11 @@ function Home() {
         };
       });
       // Note: Do not run setState twice (i.e. once here and once in getAudioFeatures)
+
+      // shuffle top tracks, take the first 5 for recommendation fetch
       shuffle(TopTracks);
       const TopTracks1 = TopTracks.slice(0, 5);
-      console.log(TopTracks1);
+      att.setshuffletracks(TopTracks1)
       return TopTracks1;
     };
     const getRecTopArtists = async () => {
@@ -143,7 +114,7 @@ function Home() {
       });
       shuffle(recTopArtists);
       const recTopArtists1 = recTopArtists.slice(0, 5);
-      console.log(recTopArtists1);
+      att.setshuffleartists(recTopArtists1)
       return recTopArtists1;
     };
     // Get top tracks
@@ -151,7 +122,7 @@ function Home() {
       const response = await get(
         "https://api.spotify.com/v1/me/top/tracks?" +
           queryString.stringify({
-            limit: att.range,
+            limit: "50",
             time_range: att.term,
           }),
         "GET",
@@ -165,13 +136,29 @@ function Home() {
           images: d.album.images[0].url,
           popularity: d.popularity,
           url: d.external_urls.spotify,
+          artist: d.artists.map((_artist) => _artist.name).join(","),
         };
       });
+      
+
       // Note: Do not run setState twice (i.e. once here and once in getAudioFeatures)
       return TopTracks;
+
       // getAudioFeatures(TopTracks);
     };
+    function round(num) {
+      var sep = String(23.32).match(/\D/)[0];
+      var b = String(num).split(sep);
+    var c= b[1]? b[1].length : 0;
 
+    if (num === 0) {
+      return 0
+    } else if (b[0] === "0" && b[1][1] === "0" && b[1][2] === "0" && b[1][3] === "0") {
+      return num.toFixed(c-1)
+    } else {
+      return num.toFixed(2)
+    }
+  }
     // Get audio features of tracks
     const getAudioFeatures = async (tracks) => {
       const feat = await get(
@@ -185,7 +172,6 @@ function Home() {
       const TopTracksFeat = await tracks.map((d, index) => {
         return { ...d, features: feat.audio_features[index] };
       });
-      console.log(TopTracksFeat[0].features.danceability);
       const data = TopTracksFeat.map((d, index) => {
         return {
           name: d.name,
@@ -194,22 +180,16 @@ function Home() {
           energy: d.features.energy,
           instrumentalness: d.features.instrumentalness,
           valence: d.features.valence,
-          index: index
+          index: index,
         };
       });
-      console.log(data);
-      att.settoptracksdata(data);
 
-      const data1 = TopTracksFeat.slice(0, 5).map((d) => {
-        return { name: d.name, danceability: d.features.danceability };
-      });
-      console.log(data1);
-      att.setdata1(data1);
+      att.settoptracksdata(data);
 
       const data2 = TopTracksFeat.map((d, index) => {
         return { name: d.name, tempo: d.features.tempo, index: index };
       });
-      console.log(data);
+
       att.settoptrackstempodata(data2);
 
       const maxFeat = (feat) => {
@@ -228,51 +208,47 @@ function Home() {
       const featSummary = [
         {
           acousticness: {
-            avg: avgFeat("acousticness"),
-            min: minFeat("acousticness"),
-            max: maxFeat("acousticness"),
+            avg: round(avgFeat("acousticness")),
+            min: round(minFeat("acousticness")),
+            max: round(maxFeat("acousticness")),
           },
           danceability: {
-            avg: avgFeat("danceability"),
-            min: minFeat("danceability"),
-            max: maxFeat("danceability"),
+            avg: round(avgFeat("danceability")),
+            min: round(minFeat("danceability")),
+            max: round(maxFeat("danceability")),
           },
           energy: {
-            avg: avgFeat("energy"),
-            min: minFeat("energy"),
-            max: maxFeat("energy"),
+            avg: round(avgFeat("energy")),
+            min: round(minFeat("energy")),
+            max: round(maxFeat("energy")),
           },
           instrumentalness: {
-            avg: avgFeat("instrumentalness"),
-            min: minFeat("instrumentalness"),
-            max: maxFeat("instrumentalness"),
+            avg: round(avgFeat("instrumentalness")),
+            min: round(minFeat("instrumentalness")),
+            max: round(maxFeat("instrumentalness")),
           },
           loudness: {
-            avg: avgFeat("loudness"),
-            min: minFeat("loudness"),
-            max: maxFeat("loudness"),
+            avg: round(avgFeat("loudness")),
+            min: round(minFeat("loudness")),
+            max: round(maxFeat("loudness")),
           },
           tempo: {
-            avg: avgFeat("tempo"),
-            min: minFeat("tempo"),
-            max: maxFeat("tempo"),
+            avg: round(avgFeat("tempo")),
+            min: round(minFeat("tempo")),
+            max: round(maxFeat("tempo")),
           },
           valence: {
-            avg: avgFeat("valence"),
-            min: minFeat("valence"),
-            max: maxFeat("valence"),
+            avg: round(avgFeat("valence")),
+            min: round(minFeat("valence")),
+            max: round(maxFeat("valence")),
           },
         },
       ];
       att.setAudioFeatSummary(featSummary);
-      console.log(featSummary);
 
       att.setTopTracks(TopTracksFeat);
-
-      // console.log(TopTracksFeat[0].features.valence);
-
-      console.log(TopTracksFeat);
     };
+
     const getSaved = async () => {
       const saved = await get(
         "https://api.spotify.com/v1/me/tracks?" +
@@ -287,12 +263,11 @@ function Home() {
           name: d.track.name,
           disc: d.track.disc_number,
           id: d.track.id,
-          artist: d.track.artists[0].name
+          artist: d.track.artists[0].name,
         };
       });
       att.setSavedTracks(savedTracks);
-      // console.log(TopArtists)
-      console.log(savedTracks);
+
       return savedTracks;
     };
 
@@ -308,8 +283,8 @@ function Home() {
       const TopTracksFeat = await tracks.map((d, index) => {
         return { ...d, features: feat.audio_features[index] };
       });
-      console.log(TopTracksFeat[0].features.danceability);
-      const data3 = TopTracksFeat.map((d,index) => {
+
+      const data3 = TopTracksFeat.map((d, index) => {
         return {
           name: d.name,
           danceability: d.features.danceability,
@@ -317,19 +292,14 @@ function Home() {
           energy: d.features.energy,
           instrumentalness: d.features.instrumentalness,
           valence: d.features.valence,
-          index: index
+          index: index,
         };
       });
-      console.log(data3);
+
       att.setsavedtracksdata(data3);
 
-      const data4 = TopTracksFeat.slice(0, 5).map((d) => {
-        return { name: d.name, danceability: d.features.danceability };
-      });
-      att.setdata4(data4);
-
-      const data5 = TopTracksFeat.map((d,index) => {
-        return { name: d.name, tempo: d.features.tempo, index:index };
+      const data5 = TopTracksFeat.map((d, index) => {
+        return { name: d.name, tempo: d.features.tempo, index: index };
       });
 
       att.setsavedtrackstempodata(data5);
@@ -350,46 +320,43 @@ function Home() {
       const featSummary = [
         {
           acousticness: {
-            avg: avgFeat("acousticness"),
-            min: minFeat("acousticness"),
-            max: maxFeat("acousticness"),
+            avg: round(avgFeat("acousticness")),
+            min: round(minFeat("acousticness")),
+            max: round(maxFeat("acousticness")),
           },
           danceability: {
-            avg: avgFeat("danceability"),
-            min: minFeat("danceability"),
-            max: maxFeat("danceability"),
+            avg: round(avgFeat("danceability")),
+            min: round(minFeat("danceability")),
+            max: round(maxFeat("danceability")),
           },
           energy: {
-            avg: avgFeat("energy"),
-            min: minFeat("energy"),
-            max: maxFeat("energy"),
+            avg: round(avgFeat("energy")),
+            min: round(minFeat("energy")),
+            max: round(maxFeat("energy")),
           },
           instrumentalness: {
-            avg: avgFeat("instrumentalness"),
-            min: minFeat("instrumentalness"),
-            max: maxFeat("instrumentalness"),
+            avg: round(avgFeat("instrumentalness")),
+            min: round(minFeat("instrumentalness")),
+            max: round(maxFeat("instrumentalness")),
           },
           loudness: {
-            avg: avgFeat("loudness"),
-            min: minFeat("loudness"),
-            max: maxFeat("loudness"),
+            avg: round(avgFeat("loudness")),
+            min: round(minFeat("loudness")),
+            max: round(maxFeat("loudness")),
           },
           tempo: {
-            avg: avgFeat("tempo"),
-            min: minFeat("tempo"),
-            max: maxFeat("tempo"),
+            avg: round(avgFeat("tempo")),
+            min: round(minFeat("tempo")),
+            max: round(maxFeat("tempo")),
           },
           valence: {
-            avg: avgFeat("valence"),
-            min: minFeat("valence"),
-            max: maxFeat("valence"),
+            avg: round(avgFeat("valence")),
+            min: round(minFeat("valence")),
+            max: round(maxFeat("valence")),
           },
         },
       ];
       att.setAudioFeatSavedSummary(featSummary);
-      console.log(featSummary);
-
-      // console.log(TopTracksFeat[0].features.valence);
     };
 
     const getDevices = async () => {
@@ -408,7 +375,6 @@ function Home() {
         };
       });
       att.setDevices(usedDevices);
-      console.log(usedDevices);
     };
 
     const getRecent = async () => {
@@ -421,13 +387,16 @@ function Home() {
         att.ACCESS_TOKEN
       );
       const recentTrack = await recent.items.map(function (d) {
-        return { name: d.track.name, id: d.track.id, artist: d.track.artists[0].name };
+        return {
+          name: d.track.name,
+          id: d.track.id,
+          artist: d.track.artists[0].name,
+        };
       });
       const unique = recentTrack.filter(
         (v, i, a) => a.findIndex((v2) => v2.id === v.id) === i
       );
-      console.log(unique);
-      console.log(recentTrack);
+
       att.setRecentTrack(recentTrack);
       return recentTrack;
     };
@@ -444,7 +413,7 @@ function Home() {
       const TopTracksFeat = await tracks.map((d, index) => {
         return { ...d, features: feat.audio_features[index] };
       });
-      console.log(TopTracksFeat[0].features.danceability);
+
       const data6 = TopTracksFeat.map((d) => {
         return {
           name: d.name,
@@ -456,11 +425,6 @@ function Home() {
         };
       });
       att.setrecenttracksdata(data6);
-
-      const data7 = TopTracksFeat.slice(0, 5).map((d) => {
-        return { name: d.name, danceability: d.features.danceability };
-      });
-      att.setdata7(data7);
 
       const data8 = TopTracksFeat.map((d) => {
         return { name: d.name, tempo: d.features.tempo };
@@ -484,98 +448,85 @@ function Home() {
       const featSummary = [
         {
           acousticness: {
-            avg: avgFeat("acousticness"),
-            min: minFeat("acousticness"),
-            max: maxFeat("acousticness"),
+            avg: round(avgFeat("acousticness")),
+            min: round(minFeat("acousticness")),
+            max: round(maxFeat("acousticness")),
           },
           danceability: {
-            avg: avgFeat("danceability"),
-            min: minFeat("danceability"),
-            max: maxFeat("danceability"),
+            avg: round(avgFeat("danceability")),
+            min: round(minFeat("danceability")),
+            max: round(maxFeat("danceability")),
           },
           energy: {
-            avg: avgFeat("energy"),
-            min: minFeat("energy"),
-            max: maxFeat("energy"),
+            avg: round(avgFeat("energy")),
+            min: round(minFeat("energy")),
+            max: round(maxFeat("energy")),
           },
           instrumentalness: {
-            avg: avgFeat("instrumentalness"),
-            min: minFeat("instrumentalness"),
-            max: maxFeat("instrumentalness"),
+            avg: round(avgFeat("instrumentalness")),
+            min: round(minFeat("instrumentalness")),
+            max: round(maxFeat("instrumentalness")),
           },
           loudness: {
-            avg: avgFeat("loudness"),
-            min: minFeat("loudness"),
-            max: maxFeat("loudness"),
+            avg: round(avgFeat("loudness")),
+            min: round(minFeat("loudness")),
+            max: round(maxFeat("loudness")),
           },
           tempo: {
-            avg: avgFeat("tempo"),
-            min: minFeat("tempo"),
-            max: maxFeat("tempo"),
+            avg: round(avgFeat("tempo")),
+            min: round(minFeat("tempo")),
+            max: round(maxFeat("tempo")),
           },
           valence: {
-            avg: avgFeat("valence"),
-            min: minFeat("valence"),
-            max: maxFeat("valence"),
+            avg: round(avgFeat("valence")),
+            min: round(minFeat("valence")),
+            max: round(maxFeat("valence")),
           },
         },
       ];
       att.setAudioFeatRecentSummary(featSummary);
-      console.log(featSummary);
-
-      // console.log(TopTracksFeat[0].features.valence);
     };
 
     const getRecommendations = async (artists) => {
       const recommendations = await get(
         "https://api.spotify.com/v1/recommendations?" +
           queryString.stringify({
-            limit: att.recrange,
+            limit: "100",
             seed_artists: artists.map((d) => d.id).join(","),
           }),
         "GET",
         att.ACCESS_TOKEN
       );
-      console.log(artists.map((d) => d.id).join(","));
+
       const newRecs = await recommendations.tracks.map(function (d) {
-        return { name: d.name, uri: d.uri,checked: false};
+        return { name: d.name, uri: d.uri, checked: false };
       });
-      const songs = [];
-      for (let i = 0; i < att.recrange; i++) {
-        songs.push(newRecs[i].uri);
-      }
-      att.setSongsAdded(songs);
-      console.log(songs);
-      console.log(att.songsAdded);
+
       att.setRecommendations(newRecs);
-      console.log(newRecs);
     };
     const getTracksRecommendations = async (artists) => {
       const recommendations = await get(
         "https://api.spotify.com/v1/recommendations?" +
           queryString.stringify({
-            limit: att.recrange,
+            limit: "100",
             seed_tracks: artists.map((d) => d.id).join(","),
           }),
         "GET",
         att.ACCESS_TOKEN
       );
-      console.log(artists.map((d) => d.id).join(","));
+
       const newRecs = await recommendations.tracks.map(function (d) {
-        return { name: d.name, url: d.external_urls.preview_url,uri: d.uri,checked: false };
+        return {
+          name: d.name,
+          url: d.external_urls.preview_url,
+          uri: d.uri,
+          checked: false,
+        };
       });
-      console.log(newRecs)
-      const songs1 = [];
-      for (let i = 0; i < att.recrange; i++) {
-        songs1.push(newRecs[i].uri);
-      }
-      att.setSongsAdded1(songs1);
-      console.log(att.songsAdded1)
-      console.log(songs1)
+
       att.setTrackRecommendations(newRecs);
-      console.log(newRecs)
     };
-    
+
     // Run all async functions in parallel first. When they are done, set loading to false
 
     Promise.all([
@@ -589,44 +540,20 @@ function Home() {
       getRecTopTracks().then((d) => getTracksRecommendations(d)),
     ]).then(() => {
       att.setLoading(false);
+
       console.log("Done!");
-      console.log(att.recommendations)
     });
-  }, [att.forms, att.recforms]);
-  
-  
- 
-
-  
-  
-
+  }, []);
 
   
 
-  const submitEvent = (event) => {
-    event.preventDefault();
-    att.setForms({ ...att.forms, [event.target.name]: event.target.value });
-  };
-
-  const submitEvent1 = (event) => {
-    event.preventDefault();
-    att.setRecForms({ ...att.recforms, [event.target.name]: event.target.value });
-  };
-
-  
-
-  
-  
-
-  
   if (att.loading) {
     return <div>Loading...</div>;
   }
 
   return (
     <>
-      
-
+    <div id="gap"></div>
       <div>
         <Container>
           <Row>
@@ -634,193 +561,37 @@ function Home() {
               <p>Profile Name: {att.profile.display_name}</p>
               <p>Country: {att.profile.country}</p>
               <p>Email: {att.profile.email}</p>
-              <p>URLs: {att.profile.external_urls.spotify}</p>
+              <p>URL: <a
+                                  href={att.profile.external_urls.spotify}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >{att.profile.external_urls.spotify}</a> </p>
               <p>Number of followers: {att.profile.followers.total}</p>
               <p>ID: {att.profile.id}</p>
             </Col>
             <Col>
-              <Image src={att.profile.images[0].url} alt="profile" roundedCircle={true}></Image>
+              <Image
+                src={att.profile.images[0].url}
+                onError={(event) => event.target.removeAttribute("src")}
+                alt="profile"
+                roundedCircle={true}
+              ></Image>
             </Col>
           </Row>
         </Container>
       </div>
 
-      <div></div>
+      <div id="gap"></div>
       <h2>Your Available Devices</h2>
       <ol>
         {att.usedDevices.map((d) => (
           <li key={d.id}>
-            {d.id} Active: {String(d.active)} Name: {d.name} Type: {d.type}{" "}
-            Volume: {d.volume}
+            Active: {String(d.active)} Name: {d.name} Type: {d.type} Volume:{" "}
+            {d.volume}
           </li>
         ))}
       </ol>
-      <h2>Your Top Items</h2>
-      <div style={{ display: "inline-block" }}>
-        <OverlayTrigger
-          trigger="hover"
-          placement="top"
-          overlay={
-            <Popover id="popover-basic">
-              <Popover.Header as="h3">
-                Pick the time frame for your Top Items
-              </Popover.Header>
-              <Popover.Body>
-                <p>Short Term: Approximately last 4 weeks</p>
-                <p>Medium Term: Approximately last 6 months</p>
-                <p>
-                  Long Term: Calculated from several years of data and including
-                  all new data as it becomes available
-                </p>
-              </Popover.Body>
-            </Popover>
-          }
-        >
-          <div style={{ display: "inline-block", "text-align": "center" }}>
-            <p>Pick your timeframe</p>
-          </div>
-        </OverlayTrigger>
-      </div>
-
-      <div
-        style={{ display: "inline-block", border: "1px", padding: "1rem 1rem" }}
-      >
-        <p>Select a number between 1 and 50 for your query</p>
-      </div>
-      <div>
-        <form onSubmit={submitEvent}>
-          <div>
-            <Form.Select
-              onChange={(e) => att.setTerm(e.target.value)}
-              size="sm"
-              className="inputbox"
-              style={{ display: "inline-block" }}
-            >
-              <option value="short_term">Short Term</option>
-              <option value="medium_term">Medium Term</option>
-              <option value="long_term">Long Term</option>
-            </Form.Select>
-            <input
-              type="number"
-              value={att.range}
-              onChange={(e) => att.setRange(e.target.value)}
-            ></input>
-            <Button variant="outline-primary" type="submit">
-              Submit
-            </Button>
-          </div>
-        </form>
-      </div>
-      <div>
-        <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-          <Row>
-            <Col sm={3}>
-              <Nav variant="pills" className="flex-column">
-                <Nav.Item>
-                  <Nav.Link eventKey="first">Top Artists</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="second">Top Tracks</Nav.Link>
-                </Nav.Item>
-              </Nav>
-            </Col>
-            <Col sm={9}>
-              <Tab.Content>
-                <Tab.Pane eventKey="first">
-                  <Container>
-                    <Row className="mx-2 row row-cols-5">
-                      {att.TopArtists.map((d) => {
-                        return (
-                          <Card className="mb-2">
-                            <Card.Img src={d.images} />
-                            <Card.Body>
-                              <Card.Title className="text-center">
-                                {d.name}
-                              </Card.Title>
-                              <Card.Text>Genre: {d.genres.join(",")}</Card.Text>
-                            </Card.Body>
-                            <ListGroup className="list-group-flush text-left">
-                              <ListGroup.Item>
-                                Artist's URL:{" "}
-                                <a
-                                  href={d.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  Link
-                                </a>
-                              </ListGroup.Item>
-                            </ListGroup>
-                          </Card>
-                        );
-                      })}
-                    </Row>
-                  </Container>
-                </Tab.Pane>
-                <Tab.Pane eventKey="second">
-                  <Container>
-                    <Row className="mx-2 row row-cols-5">
-                      {att.TopTracks.map((d) => {
-                        return (
-                          <Card className="mb-2">
-                            <Card.Img src={d.images} />
-                            <Card.Body>
-                              <Card.Title>{d.name}</Card.Title>
-                              <Card.Text>Album: {d.album}</Card.Text>
-                            </Card.Body>
-
-                            <ListGroup className="list-group-flush text-left">
-                              <ListGroup.Item>
-                                Song URL:{" "}
-                                <a
-                                  href={d.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  Link
-                                </a>
-                              </ListGroup.Item>
-                            </ListGroup>
-                          </Card>
-                        );
-                      })}
-                    </Row>
-                  </Container>
-                </Tab.Pane>
-              </Tab.Content>
-            </Col>
-          </Row>
-        </Tab.Container>
-      </div>
-      <div>
-        <Tabs
-          defaultActiveKey="savedtracks"
-          id="fill-tab-example"
-          className="mb-3"
-          fill
-        >
-          <Tab eventKey="savedtracks" title="Last 50 Saved Tracks">
-            <ol>
-              {att.SavedTracks.map((d) => (
-                <li key={d.name}>{d.name}, Artist: {d.artist}</li>
-              ))}
-            </ol>
-            </Tab>
-            <Tab eventKey="toptracks" title="Top 50 Saved Tracks">
-            <ol>
-                {att.TopTracks.map(d => (
-                    <li key={d.name}>{d.name} {d.features.valence}</li>
-                ))}
-            </ol>
-          </Tab>
-        </Tabs>
-      </div>
-
       
-
-      
-      
-            
     </>
   );
 }
