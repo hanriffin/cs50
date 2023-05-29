@@ -1,27 +1,44 @@
+/* universal list of colours to change colour pallette easily*/
+:root {
+  --1: #27374d;
+  --2: #526d82;
+  --3: #9db2bf;
+  --4: #dde6ed;
+  --5: white;
+  --6: black;
+  --7: red;
+  --8: grey;
+}
+
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--1) !important;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
-input[type=number], select, option {
+input[type="number"],
+select,
+option {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
-  box-sizing: border-box;  
+  box-sizing: border-box;
 }
-input[type=number], select {
-  width:100px;
-  height:40px;
-  border : 1px #ccc solid;
-  vertical-align:top;
+input[type="number"],
+select {
+  width: 100px;
+  height: 50px;
+  border: 1px #ccc solid;
+  vertical-align: top;
   margin-right: 10px;
 }
 input::-webkit-outer-spin-button,
@@ -30,15 +47,48 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-
-.mb-3 {
-  border-color:blue !important
+.nav-tabs .nav-link {
+  color: var(--4) !important;
+  background-color: var(--1) !important;
+  border-color: var(--1) !important;
+  border-bottom-color: var(--4) !important;
 }
 
+.nav-tabs .nav-link.active {
+  color: var(--1) !important;
+  background-color: var(--4) !important;
+  border-color: var(--4) !important;
+  border-bottom-color: var(--4) !important;
+}
+
+/* Nav Bar */
+.color-nav {
+  background-color: var(--6);
+  color: var(--4) !important;
+}
+
+/* Top Tab non active tab */
+.flex-column .nav-link {
+  color: var(--4) !important;
+}
+
+/* Top Tab active tab */
+.flex-column .nav-link.active {
+  color: var(--1) !important;
+  background-color: var(--4) !important;
+}
+
+/* Nav Bar Tabs */
+.color-nav .nav-item a {
+  color: var(--4) !important;
+}
+
+/* term dropdown boxes */
 .inputbox {
-  width: 150px !important
+  width: 150px !important;
 }
 
+/* Top and Reco tab stuff in line with submit button */
 form {
   display: flex;
   flex-direction: row;
@@ -47,27 +97,128 @@ form {
   height: 100%;
   margin: 10px;
 }
+
+/* Charts and Reco Tab Sort By and select all unselect all */
 #buttonalignright {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
   height: 100%;
-  margin-right:10px
+  margin-right: 10px;
 }
 
+/* Top tab gap between term and number of items */
 #form {
-  margin-right:10px;
+  margin-right: 10px;
+  width: 150px;
+  display: inline-block;
 }
 
+/* Chart tab gap between dropdown and charts */
 #gap {
-  margin-top:50px;
+  height: 15px;
+}
+/* General gap between components of page */
+#gap2 {
+  height: 50px;
 }
 
-#form {
-  width:150px;
-}
-
+/* Reco Tab gap between number of items and input box */
 label {
-  margin-right:5px;
+  margin-right: 5px;
+}
+
+/* margin of all pages */
+#items {
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-bottom: 7%;
+  margin-top: 2%;
+}
+
+/* loading spinner position */
+#spinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+}
+
+/* Top tab term and number of items position on top of boxes*/
+#topform {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top tab number of items box length */
+#boxform {
+  width: 125px;
+}
+
+/* Reco tab position of error message */
+#erroralert {
+  width: 300px;
+  margin-right: 50px;
+  height: 60px;
+}
+
+/* Reco tab gap between dropdown of term and list of reco songs used for reco*/
+#gap1 {
+  height: 70px;
+}
+
+/* Reco tab checkbox clicked*/
+[type="checkbox"] {
+  margin-left: 5px;
+  accent-color: var(--7);
+}
+
+/* Sort By labels */
+#labels {
+  display: "flex";
+  float: "right";
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  padding-right: 10px;
+}
+
+#playertext {
+  color: var(--6);
+}
+
+h1,
+h2,
+h3,
+h4,
+h6,
+p,
+li,
+td,
+tr,
+label {
+  color: var(--4);
+}
+
+/* all submit buttons */
+.btn-primary {
+  background-color: var(--2) !important;
+  color: var(--4) !important;
+  border-color: var(--2) !important;
+}
+
+/* home tab url for your account profile */
+#homelink {
+  color: var(--4) !important;
+}
+
+/* Top tab error alert for number of items*/
+#erroralert1 {
+  width: 300px;
+  margin-right: 10px;
+  height: 60px;
+  position: relative;
+  top: 16px;
+  margin-top: 0px;
+  margin-bottom: 14px;
 }

@@ -7,6 +7,7 @@ import "../index.css";
 import queryString from "querystring";
 import { Context } from "../utils/context.js";
 import { get } from "../utils/get.js";
+import GetDevice from "./getdevice.jsx";
 
 function Charts() {
   const att = useContext(Context);
@@ -42,25 +43,13 @@ function Charts() {
       };
     });
 
-    setSortatt("all")
+    setSortatt("all");
     // Note: Do not run setState twice (i.e. once here and once in getAudioFeatures)
     return TopTracks;
-    
+
     // getAudioFeatures(TopTracks);
   };
-  function round(num) {
-    var sep = String(23.32).match(/\D/)[0];
-    var b = String(num).split(sep);
-  var c= b[1]? b[1].length : 0;
 
-  if (num === 0) {
-    return 0
-  } else if (b[0] === "0" && b[1][1] === "0" && b[1][2] === "0" && b[1][3] === "0") {
-    return num.toFixed(c-1)
-  } else {
-    return num.toFixed(2)
-  }
-}
   // Get audio features of tracks
   const getAudioFeatures = async (tracks) => {
     const feat = await get(
@@ -82,7 +71,7 @@ function Charts() {
         energy: d.features.energy,
         instrumentalness: d.features.instrumentalness,
         valence: d.features.valence,
-        index: index
+        index: index,
       };
     });
     att.settoptracksdata(data);
@@ -90,57 +79,61 @@ function Charts() {
     const data2 = TopTracksFeat.map((d, index) => {
       return { name: d.name, tempo: d.features.tempo, index: index };
     });
-    
-    setSorttempoatt("all")
+
+    setSorttempoatt("all");
     att.settoptrackstempodata(data2);
-  }
+  };
 
   useEffect(() => {
-    getTopTracks().then((d) => getAudioFeatures(d))
-  },[att.term])
+    getTopTracks().then((d) => getAudioFeatures(d));
+  }, [att.term]);
 
   const charting = (event) => {
     if (chartCurrentTab === "toptracks") {
       return (
         <div>
           <Form.Select
-          onChange={(e) => setSortatt(e.target.value)}
-          size="sm"
-          className="inputbox"
-          style={{display:'flex',float: 'right'}}
-          value={sortatt}
-          activeKey={sortatt}
-          onSelect={(key) => setChartCurrentTab(key)}
-        >
-          <option value="all">All</option>
-          <option value="danceability">Danceability</option>
-          <option value="acousticness">Acousticness</option>
-          <option value="energy">Energy</option>
-          <option value="instrumentalness">Instrumentalness</option>
-          <option value="valence">Valence</option>
-        </Form.Select>
-        <label for="sort" style={{display:'flex',float: 'right'}} >Sort By</label>
+            onChange={(e) => setSortatt(e.target.value)}
+            size="sm"
+            className="inputbox"
+            style={{ display: "flex", float: "right", marginRight: "20px" }}
+            value={sortatt}
+            activekey={sortatt}
+            onSelect={(key) => setChartCurrentTab(key)}
+            id="sort"
+          >
+            <option value="all">All</option>
+            <option value="danceability">Danceability</option>
+            <option value="acousticness">Acousticness</option>
+            <option value="energy">Energy</option>
+            <option value="instrumentalness">Instrumentalness</option>
+            <option value="valence">Valence</option>
+          </Form.Select>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
         </div>
-        
       );
     } else if (chartCurrentTab === "toptrackstempo") {
       return (
         <div>
           <Form.Select
-          onChange={(e) => setSorttempoatt(e.target.value)}
-          size="sm"
-          className="inputbox"
-          style={{display:'flex',float: 'right'}}
-          value={sorttempoatt}
-          activeKey={sorttempoatt}
-          onSelect={(key) => setChartCurrentTab(key)}
-        >
-          <option value="alltempo">All</option>
-          <option value="tempo">Tempo</option>
-        </Form.Select>
-        <label for="sort" style={{display:'flex',float: 'right'}} >Sort By</label>
+            onChange={(e) => setSorttempoatt(e.target.value)}
+            size="sm"
+            className="inputbox"
+            style={{ display: "flex", float: "right", "margin-right": "20px" }}
+            value={sorttempoatt}
+            activekey={sorttempoatt}
+            onSelect={(key) => setChartCurrentTab(key)}
+            id="sort"
+          >
+            <option value="alltempo">All</option>
+            <option value="tempo">Tempo</option>
+          </Form.Select>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
         </div>
-        
       );
     }
   };
@@ -149,41 +142,46 @@ function Charts() {
       return (
         <div>
           <Form.Select
-          onChange={(e) => setSortrsatt(e.target.value)}
-          size="sm"
-          className="inputbox"
-          style={{display:'flex',float: 'right'}}
-          value={sortrsatt}
-          activeKey={sortrsatt}
-          onSelect={(key) => setrsChartCurrentTab(key)}
-        >
-          <option value="all">All</option>
-          <option value="danceability">Danceability</option>
-          <option value="acousticness">Acousticness</option>
-          <option value="energy">Energy</option>
-          <option value="instrumentalness">Instrumentalness</option>
-          <option value="valence">Valence</option>
-        </Form.Select>
-        <label for="sort" style={{display:'flex',float: 'right'}} >Sort By</label>
+            onChange={(e) => setSortrsatt(e.target.value)}
+            size="sm"
+            className="inputbox"
+            style={{ display: "flex", float: "right" }}
+            value={sortrsatt}
+            activekey={sortrsatt}
+            onSelect={(key) => setrsChartCurrentTab(key)}
+            id="sort"
+          >
+            <option value="all">All</option>
+            <option value="danceability">Danceability</option>
+            <option value="acousticness">Acousticness</option>
+            <option value="energy">Energy</option>
+            <option value="instrumentalness">Instrumentalness</option>
+            <option value="valence">Valence</option>
+          </Form.Select>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
         </div>
-        
       );
     } else if (chartrsCurrentTab === "savedtrackstempo") {
       return (
         <div>
-        <Form.Select
-          onChange={(e) => setSortrstempoatt(e.target.value)}
-          size="sm"
-          className="inputbox"
-          style={{display:'flex',float: 'right'}}
-          value={sortrstempoatt}
-          activeKey={sortrstempoatt}
-          onSelect={(key) => setChartCurrentTab(key)}
-        >
-          <option value="alltempo">All</option>
-          <option value="tempo">Tempo</option>
-        </Form.Select>
-        <label for="sort" style={{display:'flex',float: 'right'}} >Sort By</label>
+          <Form.Select
+            onChange={(e) => setSortrstempoatt(e.target.value)}
+            size="sm"
+            className="inputbox"
+            style={{ display: "flex", float: "right" }}
+            value={sortrstempoatt}
+            activekey={sortrstempoatt}
+            onSelect={(key) => setChartCurrentTab(key)}
+            id="sort"
+          >
+            <option value="alltempo">All</option>
+            <option value="tempo">Tempo</option>
+          </Form.Select>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
         </div>
       );
     }
@@ -192,42 +190,48 @@ function Charts() {
     if (chartrpCurrentTab === "recenttracks") {
       return (
         <div>
-          
           <Form.Select
-          onChange={(e) => setSortrpatt(e.target.value)}
-          size="sm"
-          className="inputbox"
-          style={{display:'flex',float: 'right'}}
-          value={sortrpatt}
-          activeKey={sortrpatt}
-          onSelect={(key) => setrpChartCurrentTab(key)}
-          id="sort"
-        >
-          <option value="all">All</option>
-          <option value="danceability">Danceability</option>
-          <option value="acousticness">Acousticness</option>
-          <option value="energy">Energy</option>
-          <option value="instrumentalness">Instrumentalness</option>
-          <option value="valence">Valence</option>
-        </Form.Select>
-        <label for="sort" style={{display:'flex',float: 'right'}} >Sort By</label>
+            onChange={(e) => setSortrpatt(e.target.value)}
+            size="sm"
+            className="inputbox"
+            style={{ display: "flex", float: "right" }}
+            value={sortrpatt}
+            activekey={sortrpatt}
+            onSelect={(key) => setrpChartCurrentTab(key)}
+            id="sort"
+          >
+            <option value="all">All</option>
+            <option value="danceability">Danceability</option>
+            <option value="acousticness">Acousticness</option>
+            <option value="energy">Energy</option>
+            <option value="instrumentalness">Instrumentalness</option>
+            <option value="valence">Valence</option>
+          </Form.Select>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
         </div>
-        
       );
     } else if (chartrpCurrentTab === "recenttrackstempo") {
       return (
-        <Form.Select
-          onChange={(e) => setSortrptempoatt(e.target.value)}
-          size="sm"
-          className="inputbox"
-          style={{ display: "inline-block" }}
-          value={sortrptempoatt}
-          activeKey={sortrptempoatt}
-          onSelect={(key) => setrpChartCurrentTab(key)}
-        >
-          <option value="alltempo">All</option>
-          <option value="tempo">Tempo</option>
-        </Form.Select>
+        <div>
+          <Form.Select
+            onChange={(e) => setSortrptempoatt(e.target.value)}
+            size="sm"
+            className="inputbox"
+            style={{ display: "flex", float: "right" }}
+            value={sortrptempoatt}
+            activekey={sortrptempoatt}
+            onSelect={(key) => setrpChartCurrentTab(key)}
+            id="sort"
+          >
+            <option value="alltempo">All</option>
+            <option value="tempo">Tempo</option>
+          </Form.Select>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
+        </div>
       );
     }
   };
@@ -265,20 +269,14 @@ function Charts() {
     }
   };
   const reset = (event) => {
-    
     if (chartCurrentTab === "toptracks") {
-      att.setTerm(event)
-      
-      
+      att.setTerm(event);
     } else if (chartCurrentTab === "toptrackstempo") {
-      att.setTerm(event)
-      
+      att.setTerm(event);
     }
-    
-  }
+  };
   useEffect(() => {
     sorttop();
-    
   }, [sortatt, sorttempoatt]);
 
   const sortrstop = (event) => {
@@ -362,49 +360,94 @@ function Charts() {
       <h2>Charts</h2>
       <div id="gap"></div>
       <div>
-        <p>You can view your top 50 tracks, last 50 saved tracks and last 50 recently played tracks. There is a dropdown where you can toggle to sort the tracks in ascending order of the chosen feature. </p>
+        <p>
+          You can view your top 50 tracks, last 50 saved tracks and last 50
+          recently played tracks. There is a dropdown where you can toggle to
+          sort the tracks in ascending order of the chosen feature.{" "}
+        </p>
         <p>Below are the definitions that Spotify has used for the features.</p>
-      <ul>
-        <li>Acousticness: A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic.</li>
-        <li>Danceability: Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable.</li>
-        <li>Instrumentalness: Predicts whether a track contains no vocals. "Ooh" and "aah" sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly "vocal". The closer the instrumentalness value is to 1.0, the greater likelihood the track contains no vocal content. Values above 0.5 are intended to represent instrumental tracks, but confidence is higher as the value approaches 1.0.</li>
-        <li>Loudness: The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track and are useful for comparing relative loudness of tracks. Loudness is the quality of a sound that is the primary psychological correlate of physical strength (amplitude). Values typically range between -60 and 0 db.</li>
-        <li>Tempo: The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration.</li>
-        <li>Valence: A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).</li>
-
-
-
-      </ul>
+        <ul>
+          <li>
+            Acousticness: A confidence measure from 0.0 to 1.0 of whether the
+            track is acoustic. 1.0 represents high confidence the track is
+            acoustic.
+          </li>
+          <li>
+            Danceability: Danceability describes how suitable a track is for
+            dancing based on a combination of musical elements including tempo,
+            rhythm stability, beat strength, and overall regularity. A value of
+            0.0 is least danceable and 1.0 is most danceable.
+          </li>
+          <li>
+            Instrumentalness: Predicts whether a track contains no vocals. "Ooh"
+            and "aah" sounds are treated as instrumental in this context. Rap or
+            spoken word tracks are clearly "vocal". The closer the
+            instrumentalness value is to 1.0, the greater likelihood the track
+            contains no vocal content. Values above 0.5 are intended to
+            represent instrumental tracks, but confidence is higher as the value
+            approaches 1.0.
+          </li>
+          <li>
+            Loudness: The overall loudness of a track in decibels (dB). Loudness
+            values are averaged across the entire track and are useful for
+            comparing relative loudness of tracks. Loudness is the quality of a
+            sound that is the primary psychological correlate of physical
+            strength (amplitude). Values typically range between -60 and 0 db.
+          </li>
+          <li>
+            Tempo: The overall estimated tempo of a track in beats per minute
+            (BPM). In musical terminology, tempo is the speed or pace of a given
+            piece and derives directly from the average beat duration.
+          </li>
+          <li>
+            Valence: A measure from 0.0 to 1.0 describing the musical
+            positiveness conveyed by a track. Tracks with high valence sound
+            more positive (e.g. happy, cheerful, euphoric), while tracks with
+            low valence sound more negative (e.g. sad, depressed, angry).
+          </li>
+        </ul>
       </div>
-      <div style={{height:'50px'}}>
+      <div id="gap"></div>
+      <div>
         <Form.Select
-              onChange={(e) => reset(e.target.value)}
-              size="sm"
-              className="inputbox"
-              style={{display:'flex',float: 'right'}} 
-              value={att.term}
-              id = "form"
-            >
-              
-              <option value="short_term">Short Term</option>
-              <option value="medium_term">Medium Term</option>
-              <option value="long_term">Long Term</option>
-            </Form.Select>
-            <label for="form" style={{display:'flex',float: 'right'}} >Term</label></div>
-      <div id="buttonalignright">{charting()}</div>
+          onChange={(e) => reset(e.target.value)}
+          size="sm"
+          className="inputbox"
+          value={att.term}
+          style={{ display: "flex", float: "right" }}
+          id="term"
+        >
+          <option value="short_term">Short Term</option>
+          <option value="medium_term">Medium Term</option>
+          <option value="long_term">Long Term</option>
+        </Form.Select>
+        <label
+          htmlFor="term"
+          style={{
+            display: "flex",
+            float: "right",
+            height: "50px",
+            lineHeight: "50px",
+            textAlign: "center",
+            paddingRight: "10px",
+          }}
+        >
+          Term
+        </label>
+        <div id="buttonalignright">{charting()}</div>
+      </div>
       <div id="gap"></div>
 
       <div>
-            
         <Tabs
           defaultActiveKey="toptracks"
           id="uncontrolled-tab-example"
           className="mb-3"
           transition={Fade}
-          activeKey={chartCurrentTab}
+          activekey={chartCurrentTab}
           onSelect={(key) => setChartCurrentTab(key)}
         >
-          <Tab eventKey="toptracks" title="Top Tracks Chart" def>
+          <Tab eventKey="toptracks" title="Top Tracks Chart" def="true">
             <Chart data={att.toptracksdata}></Chart>
           </Tab>
           <Tab eventKey="toptrackstempo" title="Top Tracks Tempo Chart">
@@ -419,10 +462,10 @@ function Charts() {
           id="uncontrolled-tab-example"
           className="mb-3"
           transition={Fade}
-          activeKey={chartrsCurrentTab}
+          activekey={chartrsCurrentTab}
           onSelect={(key) => setrsChartCurrentTab(key)}
         >
-          <Tab eventKey="savedtracks" title="Recently Saved Chart" def>
+          <Tab eventKey="savedtracks" title="Recently Saved Chart" def="true">
             <Chart data={att.savedtracksdata}></Chart>
           </Tab>
           <Tab eventKey="savedtrackstempo" title="Recently Saved Tempo Chart">
@@ -437,10 +480,10 @@ function Charts() {
           id="uncontrolled-tab-example"
           className="mb-3"
           transition={Fade}
-          activeKey={chartrpCurrentTab}
+          activekey={chartrpCurrentTab}
           onSelect={(key) => setrpChartCurrentTab(key)}
         >
-          <Tab eventKey="recenttracks" title="Recently Played Chart" def>
+          <Tab eventKey="recenttracks" title="Recently Played Chart" def="true">
             <Chart data={att.recenttracksdata}></Chart>
           </Tab>
           <Tab eventKey="recenttrackstempo" title="Recently Played Tempo Chart">
@@ -448,6 +491,7 @@ function Charts() {
           </Tab>
         </Tabs>
       </div>
+      <GetDevice />
     </>
   );
 }

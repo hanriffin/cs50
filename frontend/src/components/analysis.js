@@ -4,11 +4,8 @@ import { Context } from "../utils/context.js";
 import { Tabs, Tab, Table } from "react-bootstrap";
 import queryString from "querystring";
 import { get } from "../utils/get.js";
-import {
-
-  Form
-} from "react-bootstrap";
-
+import { Form } from "react-bootstrap";
+import GetDevice from "./getdevice.jsx";
 
 function Analysis() {
   const att = useContext(Context);
@@ -34,7 +31,6 @@ function Analysis() {
         artist: d.artists.map((_artist) => _artist.name).join(","),
       };
     });
-
 
     // Note: Do not run setState twice (i.e. once here and once in getAudioFeatures)
     return TopTracks;
@@ -89,19 +85,23 @@ function Analysis() {
     function round(num) {
       var sep = String(23.32).match(/\D/)[0];
       var b = String(num).split(sep);
-    var c= b[1]? b[1].length : 0;
+      var c = b[1] ? b[1].length : 0;
 
-    if (num === 0) {
-      return 0
+      if (num === 0) {
+        return 0;
+      }
+      if (
+        b[0] === "0" &&
+        b[1][1] === "0" &&
+        b[1][2] === "0" &&
+        b[1][3] === "0"
+      ) {
+        return num.toFixed(c - 1);
+      } else {
+        return num.toFixed(2);
+      }
     }
-    if (b[0] === "0" && b[1][1] === "0" && b[1][2] === "0" && b[1][3] === "0") {
-      return num.toFixed(c-1)
-    } else {
-      return num.toFixed(2)
-    }
-  }
-    
- 
+
     const featSummary = [
       {
         acousticness: {
@@ -147,44 +147,94 @@ function Analysis() {
   };
 
   useEffect(() => {
-    getTopTracks().then((d) => getAudioFeatures(d))
-   },[att.term])
+    getTopTracks().then((d) => getAudioFeatures(d));
+  }, [att.term]);
 
   return (
     <>
       <h2>Analysis</h2>
       <div id="gap"></div>
-      <p>Here are some analysis of your top 50 tracks, last 50 tracks saved and last 50 tracks played of yours. We've compiled the minimum, maximum and average of each audio feature for you to have a rough gauge of your music preferences. Below are the definitions that Spotify has used for the features.  </p>
+      <p>
+        Here are some analysis of your top 50 tracks, last 50 tracks saved and
+        last 50 tracks played of yours. We've compiled the minimum, maximum and
+        average of each audio feature for you to have a rough gauge of your
+        music preferences. Below are the definitions that Spotify has used for
+        the features.{" "}
+      </p>
       <ul>
-        <li>Acousticness: A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic.</li>
-        <li>Danceability: Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable.</li>
-        <li>Instrumentalness: Predicts whether a track contains no vocals. "Ooh" and "aah" sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly "vocal". The closer the instrumentalness value is to 1.0, the greater likelihood the track contains no vocal content. Values above 0.5 are intended to represent instrumental tracks, but confidence is higher as the value approaches 1.0.</li>
-        <li>Loudness: The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track and are useful for comparing relative loudness of tracks. Loudness is the quality of a sound that is the primary psychological correlate of physical strength (amplitude). Values typically range between -60 and 0 db.</li>
-        <li>Tempo: The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration.</li>
-        <li>Valence: A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).</li>
-
-
-
+        <li>
+          Acousticness: A confidence measure from 0.0 to 1.0 of whether the
+          track is acoustic. 1.0 represents high confidence the track is
+          acoustic.
+        </li>
+        <li>
+          Danceability: Danceability describes how suitable a track is for
+          dancing based on a combination of musical elements including tempo,
+          rhythm stability, beat strength, and overall regularity. A value of
+          0.0 is least danceable and 1.0 is most danceable.
+        </li>
+        <li>
+          Instrumentalness: Predicts whether a track contains no vocals. "Ooh"
+          and "aah" sounds are treated as instrumental in this context. Rap or
+          spoken word tracks are clearly "vocal". The closer the
+          instrumentalness value is to 1.0, the greater likelihood the track
+          contains no vocal content. Values above 0.5 are intended to represent
+          instrumental tracks, but confidence is higher as the value approaches
+          1.0.
+        </li>
+        <li>
+          Loudness: The overall loudness of a track in decibels (dB). Loudness
+          values are averaged across the entire track and are useful for
+          comparing relative loudness of tracks. Loudness is the quality of a
+          sound that is the primary psychological correlate of physical strength
+          (amplitude). Values typically range between -60 and 0 db.
+        </li>
+        <li>
+          Tempo: The overall estimated tempo of a track in beats per minute
+          (BPM). In musical terminology, tempo is the speed or pace of a given
+          piece and derives directly from the average beat duration.
+        </li>
+        <li>
+          Valence: A measure from 0.0 to 1.0 describing the musical positiveness
+          conveyed by a track. Tracks with high valence sound more positive
+          (e.g. happy, cheerful, euphoric), while tracks with low valence sound
+          more negative (e.g. sad, depressed, angry).
+        </li>
       </ul>
       <div>
-      {currentTab === 'toptracks' ? <div style={{display:"inline-block",position:"relative",float:"right"}}>
-          <label for="form" style={{"margin-right":"10px","vertical-align":"middle"}}>Term</label>
+        {currentTab === "toptracks" ? (
+          <div id="gap2">
             <Form.Select
               onChange={(e) => att.setTerm(e.target.value)}
               size="sm"
               className="inputbox"
-              style={{display:"inline-block",position:"relative",float:"right"}}
               value={att.term}
-              id = "form"
+              id="analysisform"
+              style={{ display: "flex", float: "right" }}
             >
-              
               <option value="short_term">Short Term</option>
               <option value="medium_term">Medium Term</option>
               <option value="long_term">Long Term</option>
             </Form.Select>
-        </div>:''}
+            <label
+              htmlFor="analysisform"
+              style={{
+                display: "flex",
+                float: "right",
+                height: "50px",
+                lineHeight: "50px",
+                textAlign: "center",
+                paddingRight: "10px",
+              }}
+            >
+              Term
+            </label>
+          </div>
+        ) : (
+          <div id="gap2"></div>
+        )}
       </div>
-      <div id="gap"></div>
+
       <div>
         <Tabs
           defaultActiveKey="toptracks"
@@ -197,11 +247,12 @@ function Analysis() {
 
             <Table>
               <thead>
-                <tr></tr>
-                <th></th>
-                <th>Min</th>
-                <th>Max</th>
-                <th>Average</th>
+                <tr>
+                  <th></th>
+                  <th>Min</th>
+                  <th>Max</th>
+                  <th>Average</th>
+                </tr>
               </thead>
               <tbody>
                 {att.AudioFeatSummary.map((d, i) => {
@@ -282,11 +333,12 @@ function Analysis() {
 
             <Table>
               <thead>
-                <tr></tr>
-                <th></th>
-                <th>Min</th>
-                <th>Max</th>
-                <th>Average</th>
+                <tr>
+                  <th></th>
+                  <th>Min</th>
+                  <th>Max</th>
+                  <th>Average</th>
+                </tr>
               </thead>
               <tbody>
                 {att.AudioFeatSavedSummary.map((d, i) => {
@@ -316,6 +368,16 @@ function Analysis() {
                       <td>{d.energy.min}</td>
                       <td>{d.energy.max}</td>
                       <td>{d.energy.avg}</td>
+                    </tr>
+                  );
+                })}
+                {att.AudioFeatSummary.map((d, i) => {
+                  return (
+                    <tr key={i}>
+                      <td>Instrumentalness</td>
+                      <td>{d.instrumentalness.min}</td>
+                      <td>{d.instrumentalness.max}</td>
+                      <td>{d.instrumentalness.avg}</td>
                     </tr>
                   );
                 })}
@@ -357,11 +419,12 @@ function Analysis() {
 
             <Table>
               <thead>
-                <tr></tr>
-                <th></th>
-                <th>Min</th>
-                <th>Max</th>
-                <th>Average</th>
+                <tr>
+                  <th></th>
+                  <th>Min</th>
+                  <th>Max</th>
+                  <th>Average</th>
+                </tr>
               </thead>
               <tbody>
                 {att.AudioFeatRecentSummary.map((d, i) => {
@@ -391,6 +454,16 @@ function Analysis() {
                       <td>{d.energy.min}</td>
                       <td>{d.energy.max}</td>
                       <td>{d.energy.avg}</td>
+                    </tr>
+                  );
+                })}
+                {att.AudioFeatSummary.map((d, i) => {
+                  return (
+                    <tr key={i}>
+                      <td>Instrumentalness</td>
+                      <td>{d.instrumentalness.min}</td>
+                      <td>{d.instrumentalness.max}</td>
+                      <td>{d.instrumentalness.avg}</td>
                     </tr>
                   );
                 })}
@@ -429,9 +502,9 @@ function Analysis() {
           </Tab>
         </Tabs>
       </div>
+      <GetDevice />
     </>
   );
 }
-
 
 export default Analysis;

@@ -27,18 +27,32 @@ function App() {
   const [recommendations, setRecommendations] = useState([]); // recommendations based on top artists
   const [trackRecommendations, setTrackRecommendations] = useState([]); // recommendations based on top tracks
   const [toptracksdata, settoptracksdata] = useState([]); // data for charts of top tracks
-  const [toptrackstempodata, settoptrackstempodata] = useState([]); // data for charts of top tracks
+  const [toptrackstempodata, settoptrackstempodata] = useState([]); // data of tempo for charts of top tracks
   const [savedtracksdata, setsavedtracksdata] = useState([]); // data for charts of saved tracks
-  const [savedtrackstempodata, setsavedtrackstempodata] = useState([]); // data for charts of top tracks
-  const [recenttracksdata, setrecenttracksdata] = useState([]);
-  const [recenttrackstempodata, setrecenttrackstempodata] = useState([]);
-  const [term, setTerm] = useState("long_term");
-  const [shuffletracks, setshuffletracks] = useState([]);
-  const [shuffleartists, setshuffleartists] = useState([]);
-  const [la, setla] = useState([]);
-    const [la1, setla1] = useState([]);
-    const [la2, setla2] = useState([]);
-    const [la3, setla3] = useState([]);
+  const [savedtrackstempodata, setsavedtrackstempodata] = useState([]); // data of tempo for charts of top tracks
+  const [recenttracksdata, setrecenttracksdata] = useState([]); // data for charts of recently played tracks
+  const [recenttrackstempodata, setrecenttrackstempodata] = useState([]); //data of tempo for charts of recently played tracks
+  const [term, setTerm] = useState("long_term"); // term for api call. set to long_term for initially api call
+  const [shuffletracks, setshuffletracks] = useState([]); // array of 5 tracks from top tracks for recommendation spotify api call
+  const [shuffleartists, setshuffleartists] = useState([]); // array of 5 tracks from top artists for recommendation spotify api call
+  const [toptracksog, settoptracksog] = useState([]); // array of original top tracks for topjs
+  const [toptracksslice, settoptracksslice] = useState([]); // array of sliced top tracks for topjs
+  const [topartistsog, settopartistsog] = useState([]); // array of original top artists for topjs
+  const [topartistsslice, settopartistsslice] = useState([]); // array of sliced top artists for topjs
+  const [DeviceID, setDeviceID] = useState(""); // device id for player
+  const [visible, setVisible] = useState(false); // i think its for the player
+  const colours = [
+    {
+      1: "#27374D",
+      2: "#526D82",
+      3: "#9DB2BF",
+      4: "#DDE6ED",
+      5: "white",
+      6: "black",
+      7: "red",
+      8: "grey",
+    },
+  ]; // universal array of colours to easily change colour pallette
 
   useEffect(() => {
     getToken();
@@ -67,13 +81,15 @@ function App() {
   return (
     // Context.provider allows ACCESS_TOKEN to be used in all components inside it
     <Router>
-      <div>
-        <Navbar bg="dark" variant="dark">
+      <div id="nav-bar">
+        <Navbar className="color-nav">
           <Container>
             <Navbar.Brand href="/"></Navbar.Brand>
             <Nav className="me-auto">
               <Nav.Item>
                 <Nav.Link as={Link} to="/">
+                  {" "}
+                  {/* need to have as={Link} or it doesnt work */}
                   Home
                 </Nav.Link>
               </Nav.Item>
@@ -100,7 +116,9 @@ function App() {
             </Nav>
           </Container>
         </Navbar>
-
+      </div>
+      {/* all these values will be shared amongst all the tabs after loading in home tab */}
+      <div id="items">
         <Context.Provider
           value={{
             ACCESS_TOKEN,
@@ -146,28 +164,37 @@ function App() {
             setshuffletracks,
             shuffleartists,
             setshuffleartists,
-            la,
-            setla,
-            la1,
-            setla1,
-            la2,
-            setla2,
-            la3,
-            setla3
+            toptracksog,
+            settoptracksog,
+            toptracksslice,
+            settoptracksslice,
+            topartistsog,
+            settopartistsog,
+            topartistsslice,
+            settopartistsslice,
+            DeviceID,
+            setDeviceID,
+            visible,
+            setVisible,
+            colours,
           }}
         >
+          {/* if there is no access_token it will be directed to login */}
           <Routes>
             <Route path="/" element={ACCESS_TOKEN ? <Home /> : <Login />} />
-            <Route
-              path="/top"
-              element={ACCESS_TOKEN ? <Top /> : <Login />}
-            />
+            <Route path="/top" element={ACCESS_TOKEN ? <Top /> : <Login />} />
             <Route
               path="/analysis"
               element={ACCESS_TOKEN ? <Analysis /> : <Login />}
             />
-            <Route path="/charts" element={ACCESS_TOKEN ? <Charts /> : <Login />} />
-            <Route path="/recommendations" element={ACCESS_TOKEN ? <Recommendations /> : <Login />} />
+            <Route
+              path="/charts"
+              element={ACCESS_TOKEN ? <Charts /> : <Login />}
+            />
+            <Route
+              path="/recommendations"
+              element={ACCESS_TOKEN ? <Recommendations /> : <Login />}
+            />
           </Routes>
         </Context.Provider>
       </div>

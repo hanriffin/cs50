@@ -1,21 +1,15 @@
 import React from "react";
-import {  useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { Context } from "../utils/context.js";
 import queryString from "querystring";
 import { get } from "../utils/get.js"; // function to send request to API
 import "bootstrap/dist/css/bootstrap.min.css";
-import {
-  Container,
-  Image,
-  Row,
-  Col
-} from "react-bootstrap";
+import { Container, Image, Row, Col, Spinner } from "react-bootstrap";
 import "../index.css";
+import GetDevice from "./getdevice.jsx";
 
 function Home() {
-  
-  
-  const att = useContext(Context);
+  const att = useContext(Context); // usecontext to get shared stuff
 
   useEffect(() => {
     // Get profile data
@@ -28,6 +22,8 @@ function Home() {
 
       att.setProfile(profile);
     };
+
+    // shuffle function used for top tracks and artists for spotify call for reco
     const shuffle = (array) => {
       for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
@@ -61,10 +57,11 @@ function Home() {
           url: d.external_urls.spotify,
         };
       });
-      
+
       att.setTopArtists(TopArtists);
     };
 
+    // Get Top Tracks for recos
     const getRecTopTracks = async () => {
       const response = await get(
         "https://api.spotify.com/v1/me/top/tracks?" +
@@ -89,9 +86,11 @@ function Home() {
       // shuffle top tracks, take the first 5 for recommendation fetch
       shuffle(TopTracks);
       const TopTracks1 = TopTracks.slice(0, 5);
-      att.setshuffletracks(TopTracks1)
+      att.setshuffletracks(TopTracks1);
       return TopTracks1;
     };
+
+    // Get Top Artists for reco
     const getRecTopArtists = async () => {
       const response = await get(
         "https://api.spotify.com/v1/me/top/artists?" +
@@ -112,11 +111,13 @@ function Home() {
           popularity: d.popularity,
         };
       });
+      // shuffle top tracks, take the first 5 for recommendation fetch
       shuffle(recTopArtists);
       const recTopArtists1 = recTopArtists.slice(0, 5);
-      att.setshuffleartists(recTopArtists1)
+      att.setshuffleartists(recTopArtists1);
       return recTopArtists1;
     };
+
     // Get top tracks
     const getTopTracks = async () => {
       const response = await get(
@@ -139,26 +140,31 @@ function Home() {
           artist: d.artists.map((_artist) => _artist.name).join(","),
         };
       });
-      
 
       // Note: Do not run setState twice (i.e. once here and once in getAudioFeatures)
       return TopTracks;
-
-      // getAudioFeatures(TopTracks);
     };
+
+    // round audio features to 2 dp. and its 0.00 it will round to last 2 digits
     function round(num) {
       var sep = String(23.32).match(/\D/)[0];
       var b = String(num).split(sep);
-    var c= b[1]? b[1].length : 0;
+      var c = b[1] ? b[1].length : 0;
 
-    if (num === 0) {
-      return 0
-    } else if (b[0] === "0" && b[1][1] === "0" && b[1][2] === "0" && b[1][3] === "0") {
-      return num.toFixed(c-1)
-    } else {
-      return num.toFixed(2)
+      if (num === 0) {
+        return 0;
+      } else if (
+        b[0] === "0" &&
+        b[1][1] === "0" &&
+        b[1][2] === "0" &&
+        b[1][3] === "0"
+      ) {
+        return num.toFixed(c - 1);
+      } else {
+        return num.toFixed(2);
+      }
     }
-  }
+
     // Get audio features of tracks
     const getAudioFeatures = async (tracks) => {
       const feat = await get(
@@ -249,6 +255,7 @@ function Home() {
       att.setTopTracks(TopTracksFeat);
     };
 
+    // return recent saved tracks
     const getSaved = async () => {
       const saved = await get(
         "https://api.spotify.com/v1/me/tracks?" +
@@ -261,7 +268,6 @@ function Home() {
       const savedTracks = await saved.items.map(function (d) {
         return {
           name: d.track.name,
-          disc: d.track.disc_number,
           id: d.track.id,
           artist: d.track.artists[0].name,
         };
@@ -271,6 +277,7 @@ function Home() {
       return savedTracks;
     };
 
+    // get audio features for saved tracks
     const getSavedAudioFeatures = async (tracks) => {
       const feat = await get(
         "https://api.spotify.com/v1/audio-features?" +
@@ -359,6 +366,7 @@ function Home() {
       att.setAudioFeatSavedSummary(featSummary);
     };
 
+    // return available devices
     const getDevices = async () => {
       const devices = await get(
         "https://api.spotify.com/v1/me/player/devices",
@@ -377,6 +385,7 @@ function Home() {
       att.setDevices(usedDevices);
     };
 
+    // return recently played tracks
     const getRecent = async () => {
       const recent = await get(
         "https://api.spotify.com/v1/me/player/recently-played?" +
@@ -401,6 +410,7 @@ function Home() {
       return recentTrack;
     };
 
+    // return audio features of recently played tracks
     const getRecentAudioFeatures = async (tracks) => {
       const feat = await get(
         "https://api.spotify.com/v1/audio-features?" +
@@ -487,6 +497,7 @@ function Home() {
       att.setAudioFeatRecentSummary(featSummary);
     };
 
+    // return recommended songs based on top artists
     const getRecommendations = async (artists) => {
       const recommendations = await get(
         "https://api.spotify.com/v1/recommendations?" +
@@ -498,12 +509,14 @@ function Home() {
         att.ACCESS_TOKEN
       );
 
-      const newRecs = await recommendations.tracks.map(function (d) {
-        return { name: d.name, uri: d.uri, checked: false };
+      const newRecs = await recommendations.tracks.map(function (d, index) {
+        return { name: d.name, uri: d.uri, checked: false, index: index };
       });
 
       att.setRecommendations(newRecs);
     };
+
+    // return recommended songs based on top tracks
     const getTracksRecommendations = async (artists) => {
       const recommendations = await get(
         "https://api.spotify.com/v1/recommendations?" +
@@ -515,12 +528,13 @@ function Home() {
         att.ACCESS_TOKEN
       );
 
-      const newRecs = await recommendations.tracks.map(function (d) {
+      const newRecs = await recommendations.tracks.map(function (d, index) {
         return {
           name: d.name,
           url: d.external_urls.preview_url,
           uri: d.uri,
           checked: false,
+          index: index,
         };
       });
 
@@ -545,15 +559,22 @@ function Home() {
     });
   }, []);
 
-  
-
   if (att.loading) {
-    return <div>Loading...</div>;
+    return (
+      <Spinner
+        animation="border"
+        role="status"
+        id="spinner"
+        style={{ color: att.colours[0][4] }}
+      >
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+    );
   }
 
   return (
     <>
-    <div id="gap"></div>
+      <div id="gap"></div>
       <div>
         <Container>
           <Row>
@@ -561,11 +582,17 @@ function Home() {
               <p>Profile Name: {att.profile.display_name}</p>
               <p>Country: {att.profile.country}</p>
               <p>Email: {att.profile.email}</p>
-              <p>URL: <a
-                                  href={att.profile.external_urls.spotify}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >{att.profile.external_urls.spotify}</a> </p>
+              <p>
+                URL:{" "}
+                <a
+                  href={att.profile.external_urls.spotify}
+                  target="_blank"
+                  rel="noreferrer"
+                  id="homelink"
+                >
+                  {att.profile.external_urls.spotify}
+                </a>{" "}
+              </p>
               <p>Number of followers: {att.profile.followers.total}</p>
               <p>ID: {att.profile.id}</p>
             </Col>
@@ -591,7 +618,7 @@ function Home() {
           </li>
         ))}
       </ol>
-      
+      <GetDevice />
     </>
   );
 }
