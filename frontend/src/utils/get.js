@@ -1,20 +1,40 @@
 // function to send request to API and retrieve data
 
-export const get = async (url, method, ACCESS_TOKEN) => {
+export const put = async (url, ACCESS_TOKEN) => {
   const data = await fetch(url, {
-    method: method,
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: "Bearer " + ACCESS_TOKEN,
     },
   });
+  console.log(data)
   const res = await data.json();
   return res;
 };
 
-export const post = async (url, method, ACCESS_TOKEN, body) => {
+export const get = async (url, ACCESS_TOKEN) => {
   const data = await fetch(url, {
-    method: method,
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + ACCESS_TOKEN,
+    },
+  });
+  if (data.status !== 200){
+    console.log(data.status);
+    console.log('ERROR');
+    return data.status;
+  } else {
+    // console.log(data.status);
+    const res = await data.json();
+    return res;
+  }
+};
+
+export const post = async (url, ACCESS_TOKEN, body) => {
+  const data = await fetch(url, {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: "Bearer " + ACCESS_TOKEN,
@@ -41,7 +61,6 @@ export const toggle = async (url, method, ACCESS_TOKEN, body = {}) => {
     return;
   } else {
     const res = await data.json();
-
-    return;
+    return data;
   }
 };

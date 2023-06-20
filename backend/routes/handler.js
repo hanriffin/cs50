@@ -108,7 +108,7 @@ router.get("/callback", (req, res) => {
         // Redirect back to frontend
         // Add tokens in headers so they can be extracted later
         res.redirect(
-          "http://localhost:3000/#" +
+          "http://localhost:3000/home/#" +
             queryString.stringify({
               access_token: access_token,
               refresh_token: refresh_token,
@@ -142,7 +142,7 @@ router.get("/refresh_token", function (req, res) {
       // Redirect back to frontend
       // Add tokens in headers so they can be extracted later
       res.redirect(
-        "http://localhost:3000/#" +
+        "http://localhost:3000/home/#" +
           queryString.stringify({
             refresh: "true",
             access_token: access_token,

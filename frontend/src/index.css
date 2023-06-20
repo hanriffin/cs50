@@ -10,7 +10,6 @@
   --8: grey;
 }
 
-
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -36,7 +35,7 @@ option {
 input[type="number"],
 select {
   width: 100px;
-  height: 50px;
+  height: 30px;
   border: 1px #ccc solid;
   vertical-align: top;
   margin-right: 10px;
@@ -51,44 +50,45 @@ input::-webkit-inner-spin-button {
   color: var(--4) !important;
   background-color: var(--1) !important;
   border-color: var(--1) !important;
-  border-bottom-color: var(--4) !important;
+  border-bottom-color: var(--3) !important;
 }
 
 .nav-tabs .nav-link.active {
   color: var(--1) !important;
-  background-color: var(--4) !important;
-  border-color: var(--4) !important;
-  border-bottom-color: var(--4) !important;
+  background-color: var(--3) !important;
+  border-color: var(--3) !important;
+  border-bottom-color: var(--3) !important;
 }
 
-/* Nav Bar */
+/* / Nav Bar / */
 .color-nav {
   background-color: var(--6);
   color: var(--4) !important;
 }
 
-/* Top Tab non active tab */
+/* / Top Tab non active tab / */
 .flex-column .nav-link {
   color: var(--4) !important;
 }
 
-/* Top Tab active tab */
+/* / Top Tab active tab / */
 .flex-column .nav-link.active {
   color: var(--1) !important;
-  background-color: var(--4) !important;
+  background-color: var(--3) !important;
 }
 
-/* Nav Bar Tabs */
+/* / Nav Bar Tabs / */
 .color-nav .nav-item a {
-  color: var(--4) !important;
+  color: var(--5) !important;
 }
 
-/* term dropdown boxes */
+/* / term dropdown boxes / */
 .inputbox {
   width: 150px !important;
+  height:30px;
 }
 
-/* Top and Reco tab stuff in line with submit button */
+/* / Top and Reco tab stuff in line with submit button / */
 form {
   display: flex;
   flex-direction: row;
@@ -98,7 +98,7 @@ form {
   margin: 10px;
 }
 
-/* Charts and Reco Tab Sort By and select all unselect all */
+/* / Charts and Reco Tab Sort By and select all unselect all / */
 #buttonalignright {
   display: flex;
   flex-direction: row;
@@ -108,28 +108,31 @@ form {
   margin-right: 10px;
 }
 
-/* Top tab gap between term and number of items */
+/* / Top tab gap between term and number of items / */
 #form {
   margin-right: 10px;
   width: 150px;
   display: inline-block;
 }
 
-/* Chart tab gap between dropdown and charts */
+/* / Chart tab gap between dropdown and charts / */
 #gap {
   height: 15px;
 }
-/* General gap between components of page */
+/* / General gap between components of page / */
 #gap2 {
   height: 50px;
 }
 
-/* Reco Tab gap between number of items and input box */
+/* / Reco Tab gap between number of items and input box / */
 label {
   margin-right: 5px;
 }
+input:checked {
+  background-color: #00c853;
+}
 
-/* margin of all pages */
+/* / margin of all pages / */
 #items {
   margin-left: 5%;
   margin-right: 5%;
@@ -137,12 +140,13 @@ label {
   margin-top: 2%;
 }
 
-/* loading spinner position */
+/* / loading spinner position / */
 #spinner {
   position: fixed;
   top: 50%;
   left: 50%;
 }
+
 
 /* Top tab term and number of items position on top of boxes*/
 #topform {
@@ -150,12 +154,12 @@ label {
   flex-direction: column;
 }
 
-/* Top tab number of items box length */
+/* / Top tab number of items box length / */
 #boxform {
   width: 125px;
 }
 
-/* Reco tab position of error message */
+/* / Reco tab position of error message / */
 #erroralert {
   width: 300px;
   margin-right: 50px;
@@ -173,7 +177,7 @@ label {
   accent-color: var(--7);
 }
 
-/* Sort By labels */
+/* / Sort By labels / */
 #labels {
   display: "flex";
   float: "right";
@@ -193,6 +197,7 @@ h3,
 h4,
 h6,
 p,
+ul,
 li,
 td,
 tr,
@@ -200,15 +205,20 @@ label {
   color: var(--4);
 }
 
-/* all submit buttons */
+.button {
+  background-color: var(--2) !important;
+  color: var(--4) !important;
+  border-color: var(--2) !important;
+}
+
+/ all submit buttons / 
 .btn-primary {
   background-color: var(--2) !important;
   color: var(--4) !important;
   border-color: var(--2) !important;
 }
 
-/* home tab url for your account profile */
-#homelink {
+/ home tab url for your account profile / #homelink {
   color: var(--4) !important;
 }
 
@@ -221,4 +231,130 @@ label {
   top: 16px;
   margin-top: 0px;
   margin-bottom: 14px;
+}
+
+.horizontal-slider {
+  width: 125px;
+  height: 43px;
+  margin-right: 25px;
+}
+.example-thumb {
+  cursor: pointer;
+  position: absolute;
+  z-index: 100;
+  background: #27374D;
+  border: 5px solid #27374D;
+  border-radius: 100%;
+  display: block;
+  box-shadow: 0 0 2px 0 rgb(0 0 0 / 44%);
+}
+.example-thumb.active {
+  background-color: #27374D;
+}
+.example-track {
+  position: relative;
+  background: white;
+}
+.example-track.example-track-0 {
+  background: #27374D;
+}
+.horizontal-slider .example-track {
+  top: 20px;
+  height: 4px;
+}
+.horizontal-slider .example-thumb {
+  top: 17px;
+  width: 10px;
+  outline: none;
+  height: 10px;
+  line-height: 38px;
+}
+
+
+/* Links for top tracks/artists; hover effects */
+a.top {
+  color: var(--4);
+  font-weight: 700;
+  position: relative;
+  transition: all 0.3s ease-in-out !important;
+
+  text-decoration-line: underline;
+  text-underline-offset: -8%;
+  text-decoration-thickness: 3px;
+  text-decoration-color: var(--2);
+  text-decoration-skip-ink: none;
+}
+a.top:hover {
+  content: "" !important;
+  color: var(--4);
+  background-color: var(--2) !important;
+  padding: 0 4px 0 4px;
+  margin: -4px;
+  transition: all 0.3s ease-in-out !important;
+}
+
+/* Links for top artists; hover effects for img */
+#imglink {
+  transition: all 0.2s ease-in-out !important;
+  padding: 0 4px 0 4px;
+}
+#imglink:hover {
+  content: "" !important;
+  background-color: var(--2) !important;
+  padding: 4px;
+}
+#imglink::before {
+  content: "" !important;
+  background-color: var(--7) !important;
+  position: absolute !important;
+  left: 0 !important;
+  bottom: 2px !important;
+  width: 100% !important;
+  height: 10px !important;
+  z-index: -1 !important;
+  transition: all 1s ease-in-out !important;
+}
+
+.charts {
+  width: "50vw";
+  color: "red";
+}
+
+#imglink:hover {
+  content: "" !important;
+  background-color: var(--2) !important;
+  padding: 4px;
+}
+
+/* Refresh reco icon  */
+.refreshreco {
+  transition: all 0.3s ease-in-out !important;
+  background: linear-gradient(
+    180deg,
+    var(--1) 75%,
+    var(--2) 75%,
+    var(--2) 90%,
+    var(--1) 90%,
+    var(--1) 100%
+  ) !important;
+}
+
+/* Fix column widths for recommendations table */
+.fixed-width {
+  width: 20%; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fixed-width-small {
+  width: 3%; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fixed-width-large {
+  width: 30%; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

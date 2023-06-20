@@ -1,12 +1,21 @@
 import React from "react";
-import { Tabs, Tab, Button, Modal, Form, Alert } from "react-bootstrap";
+import {
+  Tabs,
+  Tab,
+  Button,
+  Modal,
+  Form,
+  Alert,
+  Card,
+  Table,
+} from "react-bootstrap";
 import { useState, useContext, useEffect } from "react";
 import { Context } from "../utils/context.js";
 import { get, post, toggle } from "../utils/get.js";
+import { getTopTracksNew } from "../utils/api_calls.js";
 import queryString from "querystring";
 import "../index.css";
-import GetDevice from "./getdevice.jsx";
-import { PlaySongIcon } from "../utils/icon";
+import { PlaySongIcon, RefreshRecoIcon } from "../utils/icon";
 
 function Recommendations() {
   const att = useContext(Context); // usecontext to get shared stuff
@@ -20,9 +29,6 @@ function Recommendations() {
   const [recrange, setRecrange] = useState(100); // number for recommendations list
   const [errorint, seterrorint] = useState(""); // error when inputbox is not within 1 to 100
   const [showalert, setshowalert] = useState(false); // show alert when inputbox is not within 1 to 100
-  const [is_paused, setPaused] = useState();
-  const [currPlaying, setCurrPlaying] = useState({});
-  const [is_saved, setSaved] = useState();
 
   // shuffle array of top tracks/artists
   const shuffle = (array) => {
@@ -34,7 +40,60 @@ function Recommendations() {
     }
   };
 
-  // return top tracks for reco when term changes
+  // Get Top Artists for reco purposes
+  const getRecTopArtists = async () => {
+    const response = await get(
+      "https://api.spotify.com/v1/me/top/artists?" +
+        queryString.stringify({
+          limit: "50",
+          time_range: att.term,
+        }),
+      att.ACCESS_TOKEN
+    );
+    const recTopArtists = await response.items.map(function (d) {
+      return {
+        name: d.name,
+        id: d.id,
+        genres: d.genres,
+        images: d.images[0].url,
+        popularity: d.popularity,
+      };
+    });
+    // shuffle top tracks, take the first 5 for recommendation fetch
+    shuffle(recTopArtists);
+    const recTopArtists1 = recTopArtists.slice(0, 5);
+    att.setshuffleartists(recTopArtists1);
+    return recTopArtists1;
+  };
+
+  // return recommended songs based on top artists
+  const getRecommendations = async (artists) => {
+    const recommendations = await get(
+      "https://api.spotify.com/v1/recommendations?" +
+        queryString.stringify({
+          limit: "100",
+          seed_artists: artists.map((d) => d.id).join(","),
+        }),
+      att.ACCESS_TOKEN
+    );
+
+    const newRecs = await recommendations.tracks.map(function (d, index) {
+      return {
+        name: d.name,
+        uri: d.uri,
+        checked: false,
+        index: index,
+        id: d.id,
+        artist: d.artists.map((_artist) => _artist.name).join(", "),
+        album: d.album.name,
+      };
+    });
+
+    att.setRecommendations(newRecs);
+    setreco(newRecs);
+  };
+  
+  // Get Top tracks for reco purposes when term changes
   const getRecTopTracks = async () => {
     const response = await get(
       "https://api.spotify.com/v1/me/top/tracks?" +
@@ -42,7 +101,6 @@ function Recommendations() {
           limit: "50",
           time_range: att.term,
         }),
-      "GET",
       att.ACCESS_TOKEN
     );
     const TopTracks = await response.items.map(function (d) {
@@ -52,7 +110,7 @@ function Recommendations() {
         album: d.album.name,
         images: d.album.images[0].url,
         popularity: d.popularity,
-        artist: d.artists.map((_artist) => _artist.name).join(","),
+        artist: d.artists.map((_artist) => _artist.name).join(", "),
       };
     });
     // Note: Do not run setState twice (i.e. once here and once in getAudioFeatures)
@@ -64,36 +122,7 @@ function Recommendations() {
     return TopTracks1;
   };
 
-  // return top tracks when term changes
-  const getTopTracks = async () => {
-    const response = await get(
-      "https://api.spotify.com/v1/me/top/tracks?" +
-        queryString.stringify({
-          limit: "50",
-          time_range: att.term,
-        }),
-      "GET",
-      att.ACCESS_TOKEN
-    );
-    const TopTracks = await response.items.map(function (d) {
-      return {
-        name: d.name,
-        id: d.id,
-        album: d.album.name,
-        images: d.album.images[0].url,
-        popularity: d.popularity,
-        url: d.external_urls.spotify,
-        artist: d.artists.map((_artist) => _artist.name).join(","),
-      };
-    });
-
-    // Note: Do not run setState twice (i.e. once here and once in getAudioFeatures)
-    return TopTracks;
-
-    // getAudioFeatures(TopTracks);
-  };
-
-  // return recommendations from top tracks when term changes
+  // return recommendations based on top tracks when term changes
   const getTracksRecommendations = async (artists) => {
     const recommendations = await get(
       "https://api.spotify.com/v1/recommendations?" +
@@ -101,7 +130,6 @@ function Recommendations() {
           limit: "100",
           seed_tracks: artists.map((d) => d.id).join(","),
         }),
-      "GET",
       att.ACCESS_TOKEN
     );
     // index so that the player knows which song to play from the recommendations list
@@ -110,8 +138,11 @@ function Recommendations() {
         name: d.name,
         url: d.external_urls.preview_url,
         uri: d.uri,
+        id: d.id,
         checked: false,
         index: index,
+        artist: d.artists.map((_artist) => _artist.name).join(", "),
+        album: d.album.name,
       };
     });
 
@@ -124,8 +155,6 @@ function Recommendations() {
     const newPlaylist = playlistCounter + 1;
     const cp = await post(
       "https://api.spotify.com/v1/users/" + att.profile.id + "/playlists",
-
-      "POST",
       att.ACCESS_TOKEN,
       JSON.stringify({
         name: playlistTitle,
@@ -136,7 +165,6 @@ function Recommendations() {
     // tracks are added here for the playlist
     const addsongs = await post(
       "https://api.spotify.com/v1/playlists/" + cp.id + "/tracks",
-      "POST",
       att.ACCESS_TOKEN,
       JSON.stringify({ uris: newArray })
     );
@@ -201,15 +229,13 @@ function Recommendations() {
   const checkall = (event) => {
     if (currentTab === "trackrecs") {
       settrackreco(
-        trackreco.map(({ name, uri, url }) => ({
-          name,
-          url,
-          uri,
+        trackreco.map((d) => ({
+          ...d,
           checked: true,
         }))
       );
     } else if (currentTab === "artistrecs") {
-      setreco(reco.map(({ name, uri }) => ({ name, uri, checked: true })));
+      setreco(reco.map((d) => ({ ...d, checked: true })));
     }
   };
 
@@ -217,15 +243,18 @@ function Recommendations() {
   const uncheckall = (event) => {
     if (currentTab === "trackrecs") {
       settrackreco(
-        trackreco.map(({ name, uri, url }) => ({
-          name,
-          url,
-          uri,
+        trackreco.map((d) => ({
+          ...d,
           checked: false,
         }))
       );
     } else if (currentTab === "artistrecs") {
-      setreco(reco.map(({ name, uri }) => ({ name, uri, checked: false })));
+      setreco(
+        reco.map((d) => ({
+          ...d,
+          checked: false,
+        }))
+      );
     }
   };
 
@@ -266,10 +295,11 @@ function Recommendations() {
       tracks = trackreco.map((d) => d.uri);
     }
 
+    // automatically plays on active device
     toggle(
       `https://api.spotify.com/v1/me/player/play?` +
         queryString.stringify({
-          device_id: att.DeviceID,
+          // device_id: att.DeviceID,
         }),
       "PUT",
       att.ACCESS_TOKEN,
@@ -282,288 +312,497 @@ function Recommendations() {
         }),
       }
     );
-    setPaused(false);
-    getPlaybackState().then(() => att.setLoading(false));
-  };
 
-  // Check playback state
-  const getPlaybackState = async () => {
-    const response = await get(
-      "https://api.spotify.com/v1/me/player?" +
-        queryString.stringify({
-          additional_types: "track",
-        }),
-      "GET",
-      att.ACCESS_TOKEN
-    );
-
-    if (response !== "") {
-      const { is_playing, item, device } = await response;
-      // on first load (i.e. is_paused is null), set state for pause
-      // subsequently, do not change state when running this function
-      if (is_paused == null) {
-        setPaused(!is_playing);
-      }
-      const currentlyPlaying = {
-        id: item.id,
-        name: item.name,
-        album: item.album,
-        artists: item.artists.map((artist) => artist.name),
-        image: item.album.images[2].url,
-        device: {
-          id: device.id,
-          name: device.name,
-          type: device.type,
-          vol: device.volume_percent,
-        },
-      };
-
-      setCurrPlaying(currentlyPlaying);
-
-      checkSaved(currentlyPlaying.id);
-    } else {
-      console.log(response);
-    }
-  };
-
-  const checkSaved = async (track_id) => {
-    const response = await get(
-      "https://api.spotify.com/v1/me/tracks/contains?" +
-        queryString.stringify({
-          ids: track_id,
-        }),
-      "GET",
-      att.ACCESS_TOKEN
-    );
-    setSaved(...response);
+    att.setRefresh(!att.refresh);
   };
 
   // calls top tracks and reco top  tracks whenever term is changed
   useEffect(() => {
-    getTopTracks();
+    // getTopTracksNew(att);
+    // getRecTopArtists().then((d) => getRecommendations(d));
     getRecTopTracks().then((d) => getTracksRecommendations(d));
   }, [att.term]);
 
   return (
     <>
-      <h2>Recommendations</h2>
-      <div id="gap"></div>
-      <p>
-        The following 5 tracks or artists have been randomly selected out of
-        your top 50 and used to generate recommendations and matched against
-        similar artists and tracks.
-      </p>
-      <p>
-        When you select the Recommendations based on top tracks tab, you can
-        select the term duration and the recommendations generated will be based
-        off randomly 5 selected top tracks in that term duration
-      </p>
-      {currentTab === "trackrecs" ? (
-        <div id="gap1">
-          <Form.Select
-            onChange={(e) => att.setTerm(e.target.value)}
-            size="sm"
-            className="inputbox"
-            value={att.term}
-            style={{ display: "flex", float: "right" }}
-            id="term"
-          >
-            <option value="short_term">Short Term</option>
-            <option value="medium_term">Medium Term</option>
-            <option value="long_term">Long Term</option>
-          </Form.Select>
-          <label
-            htmlFor="term"
-            style={{
-              display: "flex",
-              float: "right",
-              height: "50px",
-              lineHeight: "50px",
-              textAlign: "center",
-              paddingRight: "10px",
-            }}
-          >
-            Term
-          </label>
-        </div>
-      ) : (
-        <div id="gap1"></div>
-      )}
-      <div>
-        {/* display top tracks or top artists that is used to get recos */}
-        {currentTab === "artistrecs"
-          ? att.shuffleartists.map((d) => <li key={d.id}>Artist: {d.name}</li>)
-          : att.shuffletracks.map((d) => (
-              <li key={d.id}>
-                Song: {d.name}, Artist: {d.artist}
-              </li>
-            ))}
-      </div>
-      {/* term dropdown when top tracks tab is chosen so that user can toggle term */}
+      <div id="items">
+        <h2>Recommendations</h2>
+        <div id="gap"></div>
+        <p>
+          The following 5 tracks/artists have been randomly selected out of your
+          top 50 tracks/artists and used to generate recommendations. Refreshing
+          the selected tracks/artists will also refresh the song
+          recommendations. You may also refresh the song recommendations based
+          on the existing 5 tracks/artists.
+        </p>
+        <p>
+          When you select the "Recommendations based on top tracks" tab, you can
+          select the term duration and the recommendations generated will be
+          based on 5 randomly selected tracks out of your top tracks in that
+          term duration.
+        </p>
+        <div>
+          {/* display top tracks or top artists that is used to get recos */}
+          {currentTab === "artistrecs" ? (
+            <>
+              <div style={{ height: "35px" }}>
+                <h4
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div style={{ flex: 0.1 }}></div>
+                  <span style={{ textAlign: "center" }}>Artists </span>
+                  <div style={{ flex: 0.1 }}>
+                    <RefreshRecoIcon
+                      iconColor={att.colours[0][4]}
+                      onClick={() => {
+                        getRecTopArtists().then((d) => getRecommendations(d));
+                      }}
+                    />
+                  </div>
+                </h4>
+              </div>
 
-      <div id="gap"></div>
-      <p>
-        You can choose the amount of songs generated by the recommendation by
-        inserting a number between 1 and 100 and clicking the submit button.
-      </p>
-      <p>
-        By clicking on the Select all button, all the songs will be select all
-        and clicking on the Unselect all button will unselect all songs.
-      </p>
-      <p>
-        Lastly, clicking on the create playlist button will create the playlist
-        in Spotify
-      </p>
-      <div id="gap1">
-        {/* Inputbox to show number of recos */}
-        <form onSubmit={submitEvent}>
-          <Alert
-            show={showalert}
-            id="erroralert"
-            close={closeerror()}
-            style={{
-              backgroundColor: att.colours[0][3],
-              borderColor: att.colours[0][3],
-              color: att.colours[0][6],
-            }}
-          >
-            {errorint}
-          </Alert>
-          <label htmlFor="input">Number of items</label>
-          <input
-            type="number"
-            value={recrange}
-            defaultValue={100}
-            max={100}
-            min={1}
-            name="rec"
-            onChange={(e) => handleint(e)}
-            id="input"
-          ></input>
-          {/*submit button for input box */}
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
-        </form>
-      </div>
-      <div>
-        {/* check/uncheck all */}
-        <div id="buttonalignright">
-          <Button
-            variant="primary"
-            type="submit"
-            onClick={checkall}
-            style={{ marginRight: "10px" }}
-          >
-            Select All
-          </Button>
-          <Button variant="primary" type="submit" onClick={uncheckall}>
-            Unselect All
-          </Button>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  padding: "20px 20px 0 20px",
+                }}
+              >
+                {att.shuffleartists.map((d) => {
+                  return (
+                    <Card
+                      key={d.id}
+                      style={{
+                        flex: 1,
+                        background: "transparent",
+                        border: "transparent",
+                        paddingTop: "10px",
+                      }}
+                    >
+                      <a
+                        href={d.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ margin: "auto" }}
+                      >
+                        <Card.Img
+                          id="imglink"
+                          src={d.images}
+                          style={{
+                            borderRadius: "50%",
+                            width: "12vw",
+                            height: "12vw",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </a>
+                      <Card.Body>
+                        <Card.Title
+                          style={{ color: att.colours[0][4] }}
+                          className="text-center"
+                        >
+                          {" "}
+                          <a
+                            href={d.url}
+                            className="top"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {d.name}
+                          </a>
+                        </Card.Title>
+                        <Card.Text
+                          style={{
+                            color: att.colours[0][3],
+                            textAlign: "center",
+                            fontVariant: "small-caps",
+                          }}
+                        >
+                          {d.genres.join(" | ")}
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ height: "35px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ flex: 1.1 }}></div>
+                  <h4 style={{ textAlign: "center" }}>Tracks </h4>
+                  <div style={{ flex: 0.1 }}>
+                    <RefreshRecoIcon
+                      iconColor={att.colours[0][4]}
+                      onClick={() => {
+                        getRecTopTracks().then((d) =>
+                          getTracksRecommendations(d)
+                        );
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      flex: 1,
+                      paddingRight: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <label
+                      htmlFor="term"
+                      style={{
+                        paddingRight: "10px",
+                      }}
+                    >
+                      Term
+                    </label>
+                    <Form.Select
+                      onChange={(e) => att.setTerm(e.target.value)}
+                      size="sm"
+                      className="inputbox"
+                      value={att.term}
+                      id="term"
+                    >
+                      <option value="short_term">Short Term</option>
+                      <option value="medium_term">Medium Term</option>
+                      <option value="long_term">Long Term</option>
+                    </Form.Select>
+                  </div>
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  padding: "20px 20px 0 20px",
+                }}
+              >
+                {att.shuffletracks.map((d) => {
+                  return (
+                    <Card
+                      className="mb-2 mx-auto"
+                      key={d.id}
+                      style={{
+                        width: "12vw",
+                        background: "transparent",
+                        border: "transparent",
+                        paddingTop: "10px",
+                      }}
+                    >
+                      <Card.Img src={d.images} />
+                      <Card.Body>
+                        <Card.Title
+                          style={{
+                            color: att.colours[0][4],
+                            textAlign: "center",
+                          }}
+                        >
+                          <a
+                            href={d.url}
+                            className="top"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {d.name}
+                          </a>
+                        </Card.Title>{" "}
+                        <Card.Text
+                          style={{
+                            color: att.colours[0][3],
+                            textAlign: "center",
+                          }}
+                        >
+                          {d.artist} <br />
+                          Album: {d.album}
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
-        {/* recos */}
-        <Tabs
-          defaultActiveKey="artistrecs"
-          id="fill-tab-example"
-          className="mb-3"
-          activeKey={currentTab}
-          onSelect={(key) => setCurrentTab(key)}
-        >
-          <Tab
-            eventKey="artistrecs"
-            title="Recommendations based on Top Artists"
+        {/* term dropdown when top tracks tab is chosen so that user can toggle term */}
+
+        <div id="gap"></div>
+        <p>
+          You can choose the number of songs recommendations by inserting a
+          number between 1 and 100 and clicking the submit button.
+        </p>
+        <p>
+          Clicking on the create playlist button will create a Spotify playlist
+          from the songs you have selected from the list of recommendations. The
+          Select all and Unselect all buttons will help in creating a playlist
+          from the song recommendations.
+          {/* By clicking on the Select all button, all the songs will be select all
+        and clicking on the Unselect all button will unselect all songs. */}
+        </p>
+        <div id="gap1">
+          {/* Inputbox to show number of recos */}
+          <form onSubmit={submitEvent}>
+            <Alert
+              show={showalert}
+              id="erroralert"
+              close={closeerror()}
+              style={{
+                backgroundColor: att.colours[0][3],
+                borderColor: att.colours[0][3],
+                color: att.colours[0][6],
+              }}
+            >
+              {errorint}
+            </Alert>
+            <label htmlFor="input">Number of items</label>
+            <input
+              type="number"
+              value={recrange}
+              // defaultValue={100}
+              max={100}
+              min={1}
+              name="rec"
+              onChange={(e) => handleint(e)}
+              id="input"
+            ></input>
+            {/*submit button for input box */}
+            <Button className="button" variant="primary" type="submit">
+              Submit
+            </Button>
+          </form>
+        </div>
+        <div>
+          {/* check/uncheck all */}
+          <Tabs
+            defaultActiveKey="artistrecs"
+            id="fill-tab-example"
+            className="mb-3"
+            activeKey={currentTab}
+            onSelect={(key) => setCurrentTab(key)}
           >
-            <ol>
-              {reco.map((d) => [
-                <React.Fragment>
-                  <div>
-                    <li key={d.id}>
-                      {d.name}
-                      <input
-                        type="checkbox"
-                        id={d.name}
-                        value={d.uri}
-                        onChange={() => cb(d.uri)}
-                        checked={d.checked}
-                      />
-                      <PlaySongIcon
-                        onClick={() => {
-                          playspecificsong(d.index);
-                        }}
-                      ></PlaySongIcon>
-                    </li>
-                  </div>
-                </React.Fragment>,
-              ])}
-            </ol>
-            <div>
-              {/* create playlist button */}
-              <Button onClick={() => setcpsucc(true)}>Create Playlist</Button>
-            </div>
-            {/* create playlist modify name */}
-            <Modal show={cpsucc} onHide={() => setcpsucc(false)}>
-              <Modal.Header closeButton>
-                <Modal.Title>Create Playlist</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <Form.Group>
-                  <Form.Label>Playlist name: </Form.Label>
-                  {/* set playlist title */}
-                  <Form.Control
-                    type="text"
-                    onChange={(e) => setPlaylistTitle(e.target.value)}
-                    placeholder="Playlist name"
-                  />
-                </Form.Group>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="primary" type="submit" onClick={cp}>
-                  Submit
+            {/* recos */}
+            <Tab
+              eventKey="artistrecs"
+              title="Recommendations based on Top Artists"
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <RefreshRecoIcon
+                  iconColor={att.colours[0][4]}
+                  onClick={() => {
+                    getRecommendations(att.shuffleartists);
+                  }}
+                />
+                <div id="buttonalignright">
+                  <Button
+                    className="button"
+                    variant="primary"
+                    type="submit"
+                    onClick={checkall}
+                    style={{ marginRight: "10px" }}
+                  >
+                    Select All
+                  </Button>
+                  <Button
+                    className="button"
+                    variant="primary"
+                    type="submit"
+                    onClick={uncheckall}
+                  >
+                    Unselect All
+                  </Button>
+                </div>
+              </div>
+              <Table style={{ tableLayout: "fixed", width: "89vw" }}>
+                <thead>
+                  <tr>
+                    <th className="fixed-width-small"></th>
+                    <th className="fixed-width-small"></th>
+                    <th className="fixed-width-large">Title</th>
+                    <th className="fixed-width">Artist</th>
+                    <th className="fixed-width">Album</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reco.map((d) => [
+                    <tr key={d.id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          style={{
+                            width: "15px",
+                            height: "15px",
+                            verticalAlign: "middle",
+                          }}
+                          id={d.name}
+                          value={d.uri}
+                          onChange={() => cb(d.uri)}
+                          checked={d.checked}
+                        />
+                      </td>
+                      <td>
+                        <PlaySongIcon
+                          onClick={() => {
+                            playspecificsong(d.index);
+                          }}
+                        />
+                      </td>
+                      <td className="fixed-width-large">{d.name}</td>
+                      <td className="fixed-width">{d.artist}</td>
+                      <td className="fixed-width">{d.album}</td>
+                    </tr>,
+                  ])}
+                </tbody>
+              </Table>
+              <div>
+                {/* create playlist button */}
+                <Button onClick={() => setcpsucc(true)}>Create Playlist</Button>
+              </div>
+              {/* create playlist modify name */}
+              <Modal show={cpsucc} onHide={() => setcpsucc(false)}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Create Playlist</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form.Group>
+                    <Form.Label style={{ color: "black" }}>
+                      Playlist name
+                    </Form.Label>
+                    {/* set playlist title */}
+                    <Form.Control
+                      type="text"
+                      onChange={(e) => setPlaylistTitle(e.target.value)}
+                      placeholder="Playlist name"
+                    />
+                  </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button
+                    className="button"
+                    variant="primary"
+                    type="submit"
+                    onClick={cp}
+                  >
+                    Submit
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+              {/* when playlist has been successfully createdd */}
+              <Modal show={showclose} onHide={close()}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Create Playlist</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <p>Playlist created successfully</p>
+                </Modal.Body>
+              </Modal>
+            </Tab>
+            {/* recos based on top tracks*/}
+            <Tab
+              eventKey="trackrecs"
+              title="Recommendations based on Top Tracks"
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <RefreshRecoIcon
+                  iconColor={att.colours[0][4]}
+                  onClick={() => {
+                    getTracksRecommendations(att.shuffletracks);
+                  }}
+                />
+                <div id="buttonalignright">
+                  <Button
+                    className="button"
+                    variant="primary"
+                    type="submit"
+                    onClick={checkall}
+                    style={{ marginRight: "10px" }}
+                  >
+                    Select All
+                  </Button>
+                  <Button
+                    className="button"
+                    variant="primary"
+                    type="submit"
+                    onClick={uncheckall}
+                  >
+                    Unselect All
+                  </Button>
+                </div>
+              </div>
+              <Table style={{ tableLayout: "fixed", width: "89vw" }}>
+                <thead>
+                  <tr>
+                    <th className="fixed-width-small"></th>
+                    <th className="fixed-width-small"></th>
+                    <th className="fixed-width-large">Title</th>
+                    <th className="fixed-width">Artist</th>
+                    <th className="fixed-width">Album</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trackreco.map((d) => [
+                    <tr key={d.id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          style={{
+                            width: "15px",
+                            height: "15px",
+                            verticalAlign: "middle",
+                          }}
+                          id={d.name}
+                          value={d.uri}
+                          onChange={() => cb1(d.uri)}
+                          checked={d.checked}
+                        />
+                      </td>
+                      <td>
+                        <PlaySongIcon
+                          onClick={() => {
+                            playspecificsong(d.index);
+                          }}
+                        />
+                      </td>
+                      <td className="fixed-width-large">{d.name}</td>
+                      <td className="fixed-width">{d.artist}</td>
+                      <td className="fixed-width">{d.album}</td>
+                    </tr>,
+                  ])}
+                </tbody>
+              </Table>
+              <div>
+                <Button className="button" onClick={() => setcpsucc(true)}>
+                  Create Playlist
                 </Button>
-              </Modal.Footer>
-            </Modal>
-            {/* when playlist has been successfully created */}
-            <Modal show={showclose} onHide={close()}>
-              <Modal.Header closeButton>
-                <Modal.Title>Create Playlist</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <p>Playlist created successfully</p>
-              </Modal.Body>
-            </Modal>
-          </Tab>
-          {/* recos based on top tracks*/}
-          <Tab eventKey="trackrecs" title="Recommendations based on Top Tracks">
-            <ol>
-              {trackreco.map((d) => [
-                <React.Fragment>
-                  <div>
-                    <li key={d.id}>
-                      {d.name}
-                      <input
-                        type="checkbox"
-                        id={d.name}
-                        value={d.uri}
-                        onChange={() => cb1(d.uri)}
-                        checked={d.checked}
-                      />
-                      <PlaySongIcon
-                        onClick={() => {
-                          playspecificsong(d.index);
-                        }}
-                      ></PlaySongIcon>
-                    </li>
-                  </div>
-                </React.Fragment>,
-              ])}
-            </ol>
-            <div>
-              <Button onClick={() => setcpsucc(true)}>Create Playlist</Button>
-            </div>
-          </Tab>
-        </Tabs>
+              </div>
+            </Tab>
+          </Tabs>
+        </div>
       </div>
-      <GetDevice />
+      {/* <GetDevice key={currsPlaying} /> */}
     </>
   );
 }
