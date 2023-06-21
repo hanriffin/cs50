@@ -3,6 +3,8 @@ import { Context } from "../utils/context.js";
 import queryString from "querystring";
 import { get } from "../utils/get.js";
 import Player from "./player";
+import RangeSlider from "react-bootstrap-range-slider";
+import "react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css";
 
 export default function GetDevice() {
   const att = useContext(Context);
@@ -77,6 +79,7 @@ export default function GetDevice() {
       ) : (
         <Player DeviceID={att.DeviceID} />
       )}
+
       {/* <WebPlayback DeviceID={DeviceID} /> */}
     </>
   );

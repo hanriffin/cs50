@@ -350,7 +350,7 @@ function Charts() {
       }
     }
   };
-
+  console.log(att.isDark);
   useEffect(() => {
     sortrptop();
   }, [sortrpatt, sortrptempoatt]);
@@ -448,10 +448,10 @@ function Charts() {
           onSelect={(key) => setChartCurrentTab(key)}
         >
           <Tab eventKey="toptracks" title="Top Tracks Chart" def="true">
-            <Chart data={att.toptracksdata}></Chart>
+            <Chart data={att.toptracksdata} state={att.isDark}></Chart>
           </Tab>
           <Tab eventKey="toptrackstempo" title="Top Tracks Tempo Chart">
-            <Chart1 data={att.toptrackstempodata}></Chart1>
+            <Chart1 data={att.toptrackstempodata} state={att.isDark}></Chart1>
           </Tab>
         </Tabs>
       </div>
@@ -466,10 +466,10 @@ function Charts() {
           onSelect={(key) => setrsChartCurrentTab(key)}
         >
           <Tab eventKey="savedtracks" title="Recently Saved Chart" def="true">
-            <Chart data={att.savedtracksdata}></Chart>
+            <Chart data={att.savedtracksdata} state={att.isDark}></Chart>
           </Tab>
           <Tab eventKey="savedtrackstempo" title="Recently Saved Tempo Chart">
-            <Chart1 data={att.savedtrackstempodata}></Chart1>
+            <Chart1 data={att.savedtrackstempodata} state={att.isDark}></Chart1>
           </Tab>
         </Tabs>
       </div>
@@ -484,10 +484,13 @@ function Charts() {
           onSelect={(key) => setrpChartCurrentTab(key)}
         >
           <Tab eventKey="recenttracks" title="Recently Played Chart" def="true">
-            <Chart data={att.recenttracksdata}></Chart>
+            <Chart data={att.recenttracksdata} state={att.isDark}></Chart>
           </Tab>
           <Tab eventKey="recenttrackstempo" title="Recently Played Tempo Chart">
-            <Chart1 data={att.recenttrackstempodata}></Chart1>
+            <Chart1
+              data={att.recenttrackstempodata}
+              state={att.isDark}
+            ></Chart1>
           </Tab>
         </Tabs>
       </div>

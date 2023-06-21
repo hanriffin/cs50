@@ -1,5 +1,5 @@
 import React from "react";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Context } from "../utils/context.js";
 import queryString from "querystring";
 import { get } from "../utils/get.js"; // function to send request to API
@@ -7,9 +7,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Image, Row, Col, Spinner } from "react-bootstrap";
 import "../index.css";
 import GetDevice from "./getdevice.jsx";
+import "react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css";
 
 function Home() {
   const att = useContext(Context); // usecontext to get shared stuff
+  const [pic, setImage] = useState();
 
   useEffect(() => {
     // Get profile data
@@ -19,7 +21,11 @@ function Home() {
         "GET",
         att.ACCESS_TOKEN
       );
-
+      if (profile.images.length > 0) {
+        setImage(true);
+      } else {
+        setImage(false);
+      }
       att.setProfile(profile);
     };
 
@@ -402,9 +408,6 @@ function Home() {
           artist: d.track.artists[0].name,
         };
       });
-      const unique = recentTrack.filter(
-        (v, i, a) => a.findIndex((v2) => v2.id === v.id) === i
-      );
 
       att.setRecentTrack(recentTrack);
       return recentTrack;
@@ -597,12 +600,14 @@ function Home() {
               <p>ID: {att.profile.id}</p>
             </Col>
             <Col>
-              <Image
-                src={att.profile.images[0].url}
-                onError={(event) => event.target.removeAttribute("src")}
-                alt="profile"
-                roundedCircle={true}
-              ></Image>
+              {pic && (
+                <Image
+                  src={att.profile.images[0].url}
+                  onError={(event) => event.target.removeAttribute("src")}
+                  alt="profile"
+                  roundedCircle={true}
+                ></Image>
+              )}
             </Col>
           </Row>
         </Container>
@@ -618,6 +623,7 @@ function Home() {
           </li>
         ))}
       </ol>
+
       <GetDevice />
     </>
   );

@@ -9,6 +9,8 @@ import Charts from "./components/charts";
 import Top from "./components/top";
 import Recommendations from "./components/recommendations";
 import { Navbar, Container, Nav } from "react-bootstrap";
+import Toggle from "react-toggle";
+import "./toggle.css";
 // import { get } from './utils/extractdata.js';
 
 function App() {
@@ -50,9 +52,52 @@ function App() {
       5: "white",
       6: "black",
       7: "red",
-      8: "grey",
     },
-  ]; // universal array of colours to easily change colour pallette
+  ]; // isDark array of colours to easily change colour pallette
+  
+  // checks which mode you prefer
+  const colorMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  // set initial value of color preference. if its light then it'll return false
+  const [isDark, setIsDark] = useState(colorMode);
+
+  // toggles between dark mode and light mode
+  const DarkModeToggle = () => {
+    // sets mode to dark or light depending on your preference
+    if (isDark === true) {
+      setIsDark(true);
+    } else {
+      setIsDark(false);
+    }
+    // to change colour palette just change these values, top is light mode
+    if (isDark === false) {
+      document.documentElement.style.setProperty("--1", "#F6F1F1"); // background
+      document.documentElement.style.setProperty("--2", "#AFD3E2"); // button
+      document.documentElement.style.setProperty("--3", "#19A7CE"); // tabs
+      document.documentElement.style.setProperty("--4", "#146C94"); // text
+      document.documentElement.style.setProperty("--5", "white");
+      document.documentElement.style.setProperty("--6", "black");
+      document.documentElement.style.setProperty("--7", "red"); // play button
+    } else {
+      document.documentElement.style.setProperty("--1", "#27374D"); // background
+      document.documentElement.style.setProperty("--2", "#526D82"); // button
+      document.documentElement.style.setProperty("--3", "#9DB2BF"); // tabs
+      document.documentElement.style.setProperty("--4", "#DDE6ED");
+      document.documentElement.style.setProperty("--5", "white");
+      document.documentElement.style.setProperty("--6", "black");
+      document.documentElement.style.setProperty("--7", "red"); // play button
+    }
+
+    // 🔆
+    return (
+      <Toggle
+        checked={isDark}
+        onChange={({ target }) => setIsDark(target.checked)}
+        icons={{ checked: "🌙", unchecked: "☀️" }}
+        aria-label="Dark mode toggle"
+      />
+    );
+  };
 
   useEffect(() => {
     getToken();
@@ -80,6 +125,7 @@ function App() {
 
   return (
     // Context.provider allows ACCESS_TOKEN to be used in all components inside it
+
     <Router>
       <div id="nav-bar">
         <Navbar className="color-nav">
@@ -114,6 +160,7 @@ function App() {
                 </Nav.Link>
               </Nav.Item>
             </Nav>
+            <DarkModeToggle></DarkModeToggle>
           </Container>
         </Navbar>
       </div>
@@ -177,6 +224,8 @@ function App() {
             visible,
             setVisible,
             colours,
+            isDark,
+            setIsDark,
           }}
         >
           {/* if there is no access_token it will be directed to login */}

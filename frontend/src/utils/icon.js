@@ -10,9 +10,11 @@ import {
   MdRepeat,
   MdRepeatOne,
   MdShuffle,
+  MdVolumeUp,
+  MdVolumeOff
 } from "react-icons/md";
 // import React, { useState, useContext, useEffect } from "react";
-
+import "../index.css";
 const iconSize = 24;
 
 // universal list of colours so that its easier to change
@@ -50,7 +52,7 @@ export const HeartIcon = ({ is_saved, onClick }) => {
 
 export const PlayPauseIcon = ({ is_paused, onClick }) => {
   const Icon = is_paused ? MdPlayArrow : MdPause;
-  const iconColor = colours[0][6];
+  const iconColor = "#ff0000";
 
   return (
     <div>
@@ -212,4 +214,41 @@ export const ShuffleSongIcon = ({ is_shuffle, onClick }) => {
       />
     </div>
   );
+};
+
+export const MuteIcon = ({ is_mute, onClick }) => {
+  if (is_mute === false) {
+    const Icon = MdVolumeUp;
+    const iconColor = colours[0][1];
+    return (
+      <div>
+        <Icon
+          onClick={onClick}
+          style={{
+            fill: iconColor,
+            cursor: "pointer",
+            height: iconSize,
+            width: iconSize,
+          }}
+        />
+      </div>
+    );
+  } else if (is_mute === true) {
+    const Icon = MdVolumeOff;
+    const iconColor = colours[0][1];
+
+    return (
+      <div>
+        <Icon
+          onClick={onClick}
+          style={{
+            fill: iconColor,
+            cursor: "pointer",
+            height: iconSize,
+            width: iconSize,
+          }}
+        />
+      </div>
+    );
+  } 
 };

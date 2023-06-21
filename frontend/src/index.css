@@ -7,9 +7,7 @@
   --5: white;
   --6: black;
   --7: red;
-  --8: grey;
 }
-
 
 body {
   margin: 0;
@@ -51,14 +49,14 @@ input::-webkit-inner-spin-button {
   color: var(--4) !important;
   background-color: var(--1) !important;
   border-color: var(--1) !important;
-  border-bottom-color: var(--4) !important;
+  border-bottom-color: var(--3) !important;
 }
 
 .nav-tabs .nav-link.active {
   color: var(--1) !important;
-  background-color: var(--4) !important;
-  border-color: var(--4) !important;
-  border-bottom-color: var(--4) !important;
+  background-color: var(--3) !important;
+  border-color: var(--3) !important;
+  border-bottom-color: var(--3) !important;
 }
 
 /* Nav Bar */
@@ -75,12 +73,12 @@ input::-webkit-inner-spin-button {
 /* Top Tab active tab */
 .flex-column .nav-link.active {
   color: var(--1) !important;
-  background-color: var(--4) !important;
+  background-color: var(--3) !important;
 }
 
 /* Nav Bar Tabs */
 .color-nav .nav-item a {
-  color: var(--4) !important;
+  color: var(--5) !important;
 }
 
 /* term dropdown boxes */
@@ -128,7 +126,9 @@ form {
 label {
   margin-right: 5px;
 }
-
+input:checked {
+  background-color: #00c853;
+}
 /* margin of all pages */
 #items {
   margin-left: 5%;
@@ -221,4 +221,41 @@ label {
   top: 16px;
   margin-top: 0px;
   margin-bottom: 14px;
+}
+
+.horizontal-slider {
+  width: 125px;
+  height: 43px;
+  margin-right: 25px;
+}
+.example-thumb {
+  cursor: pointer;
+  position: absolute;
+  z-index: 100;
+  background: var(--1);
+  border: 5px solid var(--1);
+  border-radius: 100%;
+  display: block;
+  box-shadow: 0 0 2px 0 rgb(0 0 0 / 44%);
+}
+.example-thumb.active {
+  background-color: var(--1);
+}
+.example-track {
+  position: relative;
+  background: white;
+}
+.example-track.example-track-0 {
+  background: var(--1);
+}
+.horizontal-slider .example-track {
+  top: 20px;
+  height: 4px;
+}
+.horizontal-slider .example-thumb {
+  top: 18px;
+  width: 10px;
+  outline: none;
+  height: 10px;
+  line-height: 38px;
 }

@@ -10,7 +10,9 @@ import {
   ToggleOverlayIcon,
   RepeatSongIcon,
   ShuffleSongIcon,
+  MuteIcon,
 } from "../utils/icon";
+import { Slider } from "./slider.js";
 
 export default function Player({ DeviceID }) {
   const att = useContext(Context);
@@ -22,6 +24,9 @@ export default function Player({ DeviceID }) {
   const [is_shuffle, setShuffle] = useState(); // sets shuffle
   const [is_repeat, setRepeat] = useState(""); // set repeat, 3 states, off, repeat track, repeat all songs in context
   const [counter, setCounter] = useState(0); // counts number of times the repeat button is pressed to define which state its in
+  const [volume, setVolume] = useState();
+  const [is_mute, setMute] = useState();
+  const [volume1, setVolume1] = useState();
 
   const toggleOverlay = () => {
     att.setVisible(!att.visible);
@@ -52,6 +57,18 @@ export default function Player({ DeviceID }) {
       }
       if (is_repeat !== null) {
         setRepeat(repeat_state);
+      }
+
+      if (device.volume_percent !== null) {
+        setVolume(device.volume_percent);
+        setVolume1(device.volume_percent);
+      }
+      if (device.volume_percent !== null) {
+        if (device.volume_percent === 0) {
+          setMute(true);
+        } else if (device.volume_percent > 0) {
+          setMute(false);
+        }
       }
 
       const currentlyPlaying = {
@@ -185,7 +202,7 @@ export default function Player({ DeviceID }) {
         `https://api.spotify.com/v1/me/player/repeat?` +
           queryString.stringify({
             state: var1,
-            device_id: att.DeviceID,
+            device_id: DeviceID,
           }),
         "PUT",
         att.ACCESS_TOKEN
@@ -201,12 +218,42 @@ export default function Player({ DeviceID }) {
       `https://api.spotify.com/v1/me/player/shuffle?` +
         queryString.stringify({
           state: shuffle,
-          device_id: DeviceID,
+          device_id: att.DeviceID,
         }),
       "PUT",
       att.ACCESS_TOKEN
     );
     setShuffle(!is_shuffle);
+  };
+
+  const volcontrol = async (event) => {
+    var vol;
+    if (event === true) {
+      vol = 0;
+    } else if (event === false) {
+      vol = volume1;
+    } else if (event === 0) {
+      setMute(true);
+      vol = event;
+    } else {
+      setVolume1(event);
+      setMute(false);
+      vol = event;
+    }
+    setVolume(vol);
+    changeVolume(vol);
+  };
+
+  const changeVolume = (vol) => {
+    toggle(
+      `https://api.spotify.com/v1/me/player/volume?` +
+        queryString.stringify({
+          volume_percent: vol,
+          device_id: DeviceID,
+        }),
+      "PUT",
+      att.ACCESS_TOKEN
+    );
   };
 
   useEffect(() => {
@@ -345,7 +392,16 @@ export default function Player({ DeviceID }) {
                 color: att.colours[0][1],
               }}
             >
-              Volume
+              <MuteIcon
+                className="btn-spotify"
+                onClick={() => {
+                  volcontrol(!is_mute);
+                  setMute(!is_mute);
+                }}
+                is_mute={is_mute}
+              />
+              <div style={{ flex: 0.05 }}></div>
+              <Slider value={volume} onChange={(e) => volcontrol(e)} />
             </div>
           </div>
         </div>

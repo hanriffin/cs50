@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 // universal list of colours to change colour pallette easily
+
 const colours = [
   {
     1: "#27374D",
@@ -26,7 +27,13 @@ const colours = [
 ];
 
 // chart for every audio feature except tempo
-export function Chart({ data }) {
+export function Chart({ data, state }) {
+  if (state === false) {
+    var textcolour = "white";
+  } else {
+    textcolour = "black";
+  }
+
   return (
     <>
       <div style={{ height: "400px" }}>
@@ -41,7 +48,7 @@ export function Chart({ data }) {
             <XAxis
               dataKey="name"
               interval={"preserveStartEnd"}
-              tick={{ fill: colours[0][5] }}
+              tick={{ fill: textcolour }}
             />
             <YAxis tick={{ fill: colours[0][5] }}></YAxis>
             <Legend
@@ -89,7 +96,12 @@ export function Chart({ data }) {
 }
 
 // tempo chart
-export function Chart1({ data }) {
+export function Chart1({ data, state }) {
+  if (state === false) {
+    var textcolour = "white";
+  } else {
+    textcolour = "black";
+  }
   return (
     <>
       <div style={{ height: "400px" }}>
@@ -104,7 +116,7 @@ export function Chart1({ data }) {
             <XAxis
               dataKey="name"
               interval={"preserveStartEnd"}
-              tick={{ fill: colours[0][5] }}
+              tick={{ fill: textcolour }}
             />
             <YAxis tick={{ fill: colours[0][5] }}></YAxis>
             <Legend
