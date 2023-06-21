@@ -92,7 +92,7 @@ function Recommendations() {
     att.setRecommendations(newRecs);
     setreco(newRecs);
   };
-  
+
   // Get Top tracks for reco purposes when term changes
   const getRecTopTracks = async () => {
     const response = await get(
@@ -356,7 +356,6 @@ function Recommendations() {
                   <span style={{ textAlign: "center" }}>Artists </span>
                   <div style={{ flex: 0.1 }}>
                     <RefreshRecoIcon
-                      iconColor={att.colours[0][4]}
                       onClick={() => {
                         getRecTopArtists().then((d) => getRecommendations(d));
                       }}
@@ -405,7 +404,6 @@ function Recommendations() {
                           style={{ color: att.colours[0][4] }}
                           className="text-center"
                         >
-                          {" "}
                           <a
                             href={d.url}
                             className="top"
@@ -417,7 +415,7 @@ function Recommendations() {
                         </Card.Title>
                         <Card.Text
                           style={{
-                            color: att.colours[0][3],
+                            color: att.colours[0][2],
                             textAlign: "center",
                             fontVariant: "small-caps",
                           }}
@@ -444,7 +442,6 @@ function Recommendations() {
                   <h4 style={{ textAlign: "center" }}>Tracks </h4>
                   <div style={{ flex: 0.1 }}>
                     <RefreshRecoIcon
-                      iconColor={att.colours[0][4]}
                       onClick={() => {
                         getRecTopTracks().then((d) =>
                           getTracksRecommendations(d)
@@ -521,7 +518,7 @@ function Recommendations() {
                         </Card.Title>{" "}
                         <Card.Text
                           style={{
-                            color: att.colours[0][3],
+                            color: att.colours[0][2],
                             textAlign: "center",
                           }}
                         >
@@ -605,7 +602,6 @@ function Recommendations() {
                 }}
               >
                 <RefreshRecoIcon
-                  iconColor={att.colours[0][4]}
                   onClick={() => {
                     getRecommendations(att.shuffleartists);
                   }}
@@ -727,7 +723,6 @@ function Recommendations() {
                 }}
               >
                 <RefreshRecoIcon
-                  iconColor={att.colours[0][4]}
                   onClick={() => {
                     getTracksRecommendations(att.shuffletracks);
                   }}

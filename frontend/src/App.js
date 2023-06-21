@@ -231,8 +231,8 @@ function NavbarHeader() {
     if (isDark === false) {
       document.documentElement.style.setProperty("--1", "#F6F1F1"); // background
       document.documentElement.style.setProperty("--2", "#AFD3E2"); // button
-      document.documentElement.style.setProperty("--3", "#19A7CE"); // tabs
-      document.documentElement.style.setProperty("--4", "#146C94"); // text
+      document.documentElement.style.setProperty("--3", "#1382a1"); // tabs
+      document.documentElement.style.setProperty("--4", "#0C4058"); // text
       document.documentElement.style.setProperty("--5", "white");
       document.documentElement.style.setProperty("--6", "black");
       document.documentElement.style.setProperty("--7", "red"); // play button

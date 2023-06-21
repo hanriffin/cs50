@@ -211,14 +211,15 @@ label {
   border-color: var(--2) !important;
 }
 
-/ all submit buttons / 
+/* all submit buttons */ 
 .btn-primary {
   background-color: var(--2) !important;
   color: var(--4) !important;
   border-color: var(--2) !important;
 }
 
-/ home tab url for your account profile / #homelink {
+/* home tab url for your account profile */ 
+#homelink {
   color: var(--4) !important;
 }
 
@@ -328,6 +329,7 @@ a.top:hover {
 
 /* Refresh reco icon  */
 .refreshreco {
+  fill: var(--4) !important;
   transition: all 0.3s ease-in-out !important;
   background: linear-gradient(
     180deg,
@@ -337,6 +339,10 @@ a.top:hover {
     var(--1) 90%,
     var(--1) 100%
   ) !important;
+}
+
+.toggleoverlay {
+  fill: red !important;
 }
 
 /* Fix column widths for recommendations table */
@@ -358,3 +364,7 @@ a.top:hover {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.toggleoverlay {
+  color: var(--4)
+} 

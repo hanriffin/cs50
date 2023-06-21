@@ -27,7 +27,7 @@ const code_challenge = base64Encode(sha256(code_verifier));
 router.get("/login", (req, res) => {
   var state = crypto.randomBytes(16).toString("hex");
   var scope = [
-    "streaming",
+    // "streaming",
     "user-read-private",
     "user-read-email",
     "app-remote-control",
