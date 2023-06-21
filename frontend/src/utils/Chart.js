@@ -8,6 +8,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import "../index.css";
+
 // universal list of colours to change colour pallette easily
 
 const colours = [
@@ -36,7 +38,7 @@ export function Chart({ data, state }) {
 
   return (
     <>
-      <div style={{ height: "400px" }}>
+      <div style={{ height: "400px", width: "90vw" }}>
         <ResponsiveContainer>
           <LineChart
             data={data}
@@ -56,6 +58,7 @@ export function Chart({ data, state }) {
               verticalAlign="top"
               align="right"
               height={120}
+              width="10vw"
               wrapperStyle={{
                 backgroundColor: colours[0][5],
                 top: 0,
@@ -104,7 +107,7 @@ export function Chart1({ data, state }) {
   }
   return (
     <>
-      <div style={{ height: "400px" }}>
+      <div style={{ height: "400px", width: "90vw" }}>
         <ResponsiveContainer>
           <LineChart
             data={data}
@@ -124,6 +127,7 @@ export function Chart1({ data, state }) {
               verticalAlign="top"
               align="right"
               height={30}
+              width="10vw"
               wrapperStyle={{
                 backgroundColor: colours[0][5],
                 top: 0,

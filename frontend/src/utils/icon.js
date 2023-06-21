@@ -11,10 +11,12 @@ import {
   MdRepeatOne,
   MdShuffle,
   MdVolumeUp,
-  MdVolumeOff
+  MdVolumeOff,
+  MdOutlineRefresh,
 } from "react-icons/md";
 // import React, { useState, useContext, useEffect } from "react";
-import "../index.css";
+// import "../index.css";
+
 const iconSize = 24;
 
 // universal list of colours so that its easier to change
@@ -30,6 +32,83 @@ const colours = [
     8: "grey",
   },
 ];
+
+export const MuteIcon = ({ is_mute, onClick }) => {
+  if (is_mute === false) {
+    const Icon = MdVolumeUp;
+    const iconColor = colours[0][1];
+    return (
+      <div>
+        <Icon
+          onClick={onClick}
+          style={{
+            fill: iconColor,
+            cursor: "pointer",
+            height: iconSize,
+            width: iconSize,
+          }}
+        />
+      </div>
+    );
+  } else if (is_mute === true) {
+    const Icon = MdVolumeOff;
+    const iconColor = colours[0][1];
+
+    return (
+      <div>
+        <Icon
+          onClick={onClick}
+          style={{
+            fill: iconColor,
+            cursor: "pointer",
+            height: iconSize,
+            width: iconSize,
+          }}
+        />
+      </div>
+    );
+  }
+};
+
+export const RefreshRecoIcon = ({  iconColor, onClick }) => {
+  const Icon = MdOutlineRefresh;
+  // const iconColor = colours[0][4];
+
+  return (
+    <span>
+      <Icon
+        className="refreshreco"
+        onClick={onClick}
+        style={{
+          fill: iconColor,
+          cursor: "pointer",
+          height: iconSize - 4,
+          width: iconSize - 4,
+          margin: "0 0 4px 4px",
+        }}
+      />
+    </span>
+  );
+};
+
+export const RefreshIcon = ({ onClick }) => {
+  const Icon = MdOutlineRefresh;
+  const iconColor = colours[0][6];
+
+  return (
+    <div>
+      <Icon
+        onClick={onClick}
+        style={{
+          fill: iconColor,
+          cursor: "pointer",
+          height: iconSize - 5,
+          width: iconSize - 5,
+        }}
+      />
+    </div>
+  );
+};
 
 export const HeartIcon = ({ is_saved, onClick }) => {
   const Icon = is_saved ? MdFavorite : MdFavoriteBorder;
@@ -52,7 +131,7 @@ export const HeartIcon = ({ is_saved, onClick }) => {
 
 export const PlayPauseIcon = ({ is_paused, onClick }) => {
   const Icon = is_paused ? MdPlayArrow : MdPause;
-  const iconColor = "#ff0000";
+  const iconColor = colours[0][6];
 
   return (
     <div>
@@ -109,11 +188,25 @@ export const PrevIcon = ({ onClick }) => {
 
 export const ToggleOverlayIcon = ({ visible, onClick }) => {
   const Icon = MdArrowDropDownCircle;
-  const rotation = visible ? "rotate(180deg)" : "";
-  const iconColor = colours[0][8];
-
+  const rotation = visible ? "" : "rotate(180deg)";
+  const iconColor = colours[0][4];
+  const bottom = visible ? "120px" : "1vw";   // 120px because the player height is fixed!
+  
   return (
-    <div>
+    <div
+      className= "toggleoverlay"
+      style={{
+        position: "fixed",
+        overflow: "hidden",
+        bottom: bottom,
+        // left: "1vw",
+        right: "1vw",
+        borderRadius: "12px",
+        // boxShadow: "-1px 6px 13px 7px #27374d",
+        // backgroundColor: colours[0][1],
+        // padding: "0 10px 10px 10px",
+      }}
+    >
       <Icon
         onClick={onClick}
         style={{
@@ -146,56 +239,36 @@ export const PlaySongIcon = ({ onClick }) => {
 };
 
 export const RepeatSongIcon = ({ is_repeat, onClick }) => {
-  if (is_repeat === "context") {
-    const Icon = MdRepeat;
-    const iconColor = colours[0][1];
-    return (
-      <div>
-        <Icon
-          onClick={onClick}
-          style={{
-            fill: iconColor,
-            cursor: "pointer",
-            height: iconSize,
-            width: iconSize,
-          }}
-        />
-      </div>
-    );
-  } else if (is_repeat === "track") {
-    const Icon = MdRepeatOne;
-    const iconColor = colours[0][1];
+  const repeat_state = {
+    context: {
+      Icon: MdRepeat,
+      iconColor: colours[0][1],
+    },
+    track: {
+      Icon: MdRepeatOne,
+      iconColor: colours[0][1],
+    },
+    off: {
+      Icon: MdRepeat,
+      iconColor: colours[0][2],
+    },
+  };
 
-    return (
-      <div>
-        <Icon
-          onClick={onClick}
-          style={{
-            fill: iconColor,
-            cursor: "pointer",
-            height: iconSize,
-            width: iconSize,
-          }}
-        />
-      </div>
-    );
-  } else if (is_repeat === "off") {
-    const Icon = MdRepeat;
-    const iconColor = colours[0][2];
-    return (
-      <div>
-        <Icon
-          onClick={onClick}
-          style={{
-            fill: iconColor,
-            cursor: "pointer",
-            height: iconSize,
-            width: iconSize,
-          }}
-        />
-      </div>
-    );
-  }
+  const { Icon, iconColor } = repeat_state[is_repeat];
+
+  return (
+    <div>
+      <Icon
+        onClick={onClick}
+        style={{
+          fill: iconColor,
+          cursor: "pointer",
+          height: iconSize - 3,
+          width: iconSize - 3,
+        }}
+      />
+    </div>
+  );
 };
 
 export const ShuffleSongIcon = ({ is_shuffle, onClick }) => {
@@ -208,47 +281,10 @@ export const ShuffleSongIcon = ({ is_shuffle, onClick }) => {
         style={{
           fill: iconColor,
           cursor: "pointer",
-          height: iconSize,
-          width: iconSize,
+          height: iconSize - 3,
+          width: iconSize - 3,
         }}
       />
     </div>
   );
-};
-
-export const MuteIcon = ({ is_mute, onClick }) => {
-  if (is_mute === false) {
-    const Icon = MdVolumeUp;
-    const iconColor = colours[0][1];
-    return (
-      <div>
-        <Icon
-          onClick={onClick}
-          style={{
-            fill: iconColor,
-            cursor: "pointer",
-            height: iconSize,
-            width: iconSize,
-          }}
-        />
-      </div>
-    );
-  } else if (is_mute === true) {
-    const Icon = MdVolumeOff;
-    const iconColor = colours[0][1];
-
-    return (
-      <div>
-        <Icon
-          onClick={onClick}
-          style={{
-            fill: iconColor,
-            cursor: "pointer",
-            height: iconSize,
-            width: iconSize,
-          }}
-        />
-      </div>
-    );
-  } 
 };

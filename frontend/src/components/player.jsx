@@ -2,15 +2,16 @@ import React, { useState, useContext, useEffect } from "react";
 import { Context } from "../utils/context.js";
 import queryString from "querystring";
 import { get, toggle } from "../utils/get.js";
+import { Slider } from "../utils/slider.js";
 import {
   HeartIcon,
   PlayPauseIcon,
   NextIcon,
   PrevIcon,
-  ToggleOverlayIcon,
+  MuteIcon,
   RepeatSongIcon,
   ShuffleSongIcon,
-  MuteIcon,
+  RefreshIcon,
 } from "../utils/icon";
 import { Slider } from "./slider.js";
 
@@ -20,32 +21,73 @@ export default function Player({ DeviceID }) {
   const [is_paused, setPaused] = useState();
   const [is_saved, setSaved] = useState();
   const [currPlaying, setCurrPlaying] = useState({});
-  const [scrollbar, setScrollbar] = useState(0); // checks to see whether theres a scroll bar to make the player fit with the scrollbar
   const [is_shuffle, setShuffle] = useState(); // sets shuffle
-  const [is_repeat, setRepeat] = useState(""); // set repeat, 3 states, off, repeat track, repeat all songs in context
-  const [counter, setCounter] = useState(0); // counts number of times the repeat button is pressed to define which state its in
+  const [is_repeat, setRepeat] = useState("off"); // set repeat, 3 states, off, repeat track, repeat all songs in context
   const [volume, setVolume] = useState();
   const [is_mute, setMute] = useState();
   const [volume1, setVolume1] = useState();
+  const [timeLeft, setTimeLeft] = useState();
 
-  const toggleOverlay = () => {
-    att.setVisible(!att.visible);
-  };
+  const waitFor = (delay) =>
+    new Promise((resolve) => setTimeout(resolve, delay));
 
   // Check playback state
   const getPlaybackState = async () => {
-    const response = await get(
-      "https://api.spotify.com/v1/me/player?" +
-        queryString.stringify({
-          additional_types: "track",
-        }),
-      "GET",
-      att.ACCESS_TOKEN
-    );
+    var response;
+    do {
+      response = await get(
+        "https://api.spotify.com/v1/me/player?" +
+          queryString.stringify({
+            additional_types: "track",
+          }),
+        att.ACCESS_TOKEN
+      );
+      if (response === 204) {
+        // account for loading time 
+        await waitFor(2000);
+      } else if (response.item === null) {
+        // this part is needed for when player is active but item is null (i.e. no playback)
+        
+        // play list of saved songs
+        const saved = await get(
+          "https://api.spotify.com/v1/me/tracks?" +
+            queryString.stringify({
+              limit: "50",
+            }),
+          att.ACCESS_TOKEN
+        );
+        const savedTracks = await saved.items.map(function (d) {
+          return {
+            uri: d.track.uri,
+          };
+        });
+  
+        toggle(
+          `https://api.spotify.com/v1/me/player/play?` +
+            queryString.stringify({
+              device_id: DeviceID,
+            }),
+          "PUT",
+          att.ACCESS_TOKEN,
+          {
+            body: JSON.stringify({
+              uris: savedTracks.map((d) => d.uri), // only tracks
+            }),
+          }
+        );
+        await waitFor(2000);
+      }
+    } while (response === 204 || response.item === null);
 
     if (response !== "") {
-      const { is_playing, item, device, shuffle_state, repeat_state } =
-        await response;
+      const {
+        is_playing,
+        item,
+        progress_ms,
+        device,
+        shuffle_state,
+        repeat_state,
+      } = await response;
       // on first load (i.e. is_paused is null), set state for pause
       // subsequently, do not change state when running this function
       // get shuffle state and repeat state
@@ -71,25 +113,71 @@ export default function Player({ DeviceID }) {
         }
       }
 
+      const is_saved = await get(
+        "https://api.spotify.com/v1/me/tracks/contains?" +
+          queryString.stringify({
+            ids: item.id,
+          }),
+        att.ACCESS_TOKEN
+      );
+
       const currentlyPlaying = {
         id: item.id,
         name: item.name,
         album: item.album,
         artists: item.artists.map((artist) => artist.name),
         image: item.album.images[2].url,
+        duration: item.duration_ms,
+        progress: progress_ms,
         device: {
           id: device.id,
           name: device.name,
           type: device.type,
           vol: device.volume_percent,
         },
+        state: {
+          is_playing: !is_playing,
+          shuffle_state: !shuffle_state,
+          repeat_state: repeat_state,
+          is_saved: is_saved[0],
+        },
       };
 
       setCurrPlaying(currentlyPlaying);
       checkSaved(currentlyPlaying.id);
+      setTimeLeft(currentlyPlaying.duration - currentlyPlaying.progress);
     } else {
       console.log(response);
     }
+  };
+  const volcontrol = async (event) => {
+    var vol;
+    if (event === true) {
+      vol = 0;
+    } else if (event === false) {
+      vol = volume1;
+    } else if (event === 0) {
+      setMute(true);
+      vol = event;
+    } else {
+      setVolume1(event);
+      setMute(false);
+      vol = event;
+    }
+    setVolume(vol);
+    changeVolume(vol);
+  };
+
+  const changeVolume = (vol) => {
+    toggle(
+      `https://api.spotify.com/v1/me/player/volume?` +
+        queryString.stringify({
+          volume_percent: vol,
+          device_id: DeviceID,
+        }),
+      "PUT",
+      att.ACCESS_TOKEN
+    );
   };
 
   // Check if track is already saved
@@ -99,20 +187,10 @@ export default function Player({ DeviceID }) {
         queryString.stringify({
           ids: track_id,
         }),
-      "GET",
       att.ACCESS_TOKEN
     );
     setSaved(...response);
   };
-
-  // check if theres a scroll bar, then minus from the player width
-  useEffect(() => {
-    if (document.body.clientHeight > window.innerHeight) {
-      setScrollbar(18);
-    } else {
-      setScrollbar(0);
-    }
-  }, []);
 
   // Save or Delete track
   const addOrRemoveTrack = async (track_id, save = true) => {
@@ -154,61 +232,58 @@ export default function Player({ DeviceID }) {
       "POST",
       att.ACCESS_TOKEN
     );
+    // setPaused(false);
     setTimeout(() => {
       getPlaybackState().then(() => setLoading(false));
     }, 1000);
   };
 
-  // Play track given uri !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! i changed this in the reco tab
-  const playspecificsong = async () => {
-    setLoading(true);
-    toggle(
-      `https://api.spotify.com/v1/me/player/play?` +
+  // const playspecificsong = async (uris) => {
+  //   setLoading(true);
+  //   toggle(
+  //     `https://api.spotify.com/v1/me/player/play?` +
+  //       queryString.stringify({
+  //         device_id: DeviceID,
+  //       }),
+  //     "PUT",
+  //     att.ACCESS_TOKEN,
+  //     {
+  //       body: JSON.stringify({
+  //         // context_uri: "spotify:album:5ht7ItJgpBH7W6vJ5BqpPr", // only albums/artists/playlists
+  //         uris: uris, // only tracks
+  //         // offset: {
+  //         //   position: 5,
+  //         // },
+  //       }),
+  //     }
+  //   );
+  //   setPaused(false);
+  //   getPlaybackState().then(() => setLoading(false));
+  // };
+
+  
+  // changes the state of repeat whenever the button is pressed based on counter
+  const repeatsong = async () => {
+    if (is_repeat === "off") {
+      var repeat_state = "context";
+    } else if (is_repeat === "context") {
+      repeat_state = "track";
+    } else if (is_repeat === "track") {
+      repeat_state = "off";
+    }
+
+    await toggle(
+      `https://api.spotify.com/v1/me/player/repeat?` +
         queryString.stringify({
+          state: repeat_state,
           device_id: DeviceID,
         }),
       "PUT",
-      att.ACCESS_TOKEN,
-      {
-        body: JSON.stringify({
-          context_uri: "spotify:album:5ht7ItJgpBH7W6vJ5BqpPr", // only albums/artists/playlists
-          // uris:    // only tracks
-          offset: {
-            position: 5,
-          },
-        }),
-      }
+      att.ACCESS_TOKEN
     );
-    setPaused(false);
-    getPlaybackState().then(() => setLoading(false));
-  };
 
-  // counter + 1 when button of repeat is pressed
-  const addcounter = () => {
-    setCounter(counter + 1);
-  };
-
-  // changes the state of repeat whenever the button is pressed based on counter
-  const repeatsong = (event) => {
-    if (is_repeat) {
-      if (is_repeat === "off") {
-        var var1 = "context";
-      } else if (is_repeat === "context") {
-        var1 = "track";
-      } else if (is_repeat === "track") {
-        var1 = "off";
-      }
-      toggle(
-        `https://api.spotify.com/v1/me/player/repeat?` +
-          queryString.stringify({
-            state: var1,
-            device_id: DeviceID,
-          }),
-        "PUT",
-        att.ACCESS_TOKEN
-      );
-      setRepeat(var1);
-    }
+    // setstate only takes effect at the end hence put it at the end
+    setRepeat(repeat_state);
   };
 
   // shuffle songs
@@ -226,186 +301,183 @@ export default function Player({ DeviceID }) {
     setShuffle(!is_shuffle);
   };
 
-  const volcontrol = async (event) => {
-    var vol;
-    if (event === true) {
-      vol = 0;
-    } else if (event === false) {
-      vol = volume1;
-    } else if (event === 0) {
-      setMute(true);
-      vol = event;
-    } else {
-      setVolume1(event);
-      setMute(false);
-      vol = event;
-    }
-    setVolume(vol);
-    changeVolume(vol);
-  };
-
-  const changeVolume = (vol) => {
-    toggle(
-      `https://api.spotify.com/v1/me/player/volume?` +
-        queryString.stringify({
-          volume_percent: vol,
-          device_id: DeviceID,
-        }),
-      "PUT",
-      att.ACCESS_TOKEN
-    );
-  };
-
+  // Rerenders when refresh is called (from the recommendations.js file when playspecificsong() is called)
   useEffect(() => {
-    getPlaybackState().then(() => setLoading(false));
-  }, []);
+    setTimeout(() => {
+      getPlaybackState().then(() => setLoading(false));
+      console.log(timeLeft);
+    }, 2000);
+  }, [att.refresh]);
 
-  // when counter changes, repeat song will trigger to change repeat state
+  // Rerenders when song ends
   useEffect(() => {
-    repeatsong();
-  }, [counter]);
+    console.log("start");
+    console.log(timeLeft);
+
+    setTimeout(() => {
+      getPlaybackState().then(() => setLoading(false));
+      console.log("reset");
+    }, timeLeft + 1000);
+  }, [timeLeft]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          paddingTop: "10px",
+        }}
+      >
+        Loading...
+      </div>
+    );
   }
 
   return (
     <>
-      {
+      <div
+        style={{
+          display: "flex",
+          height: 25,
+        }}
+      >
+        <div id="playertext">
+          Currently playing on: {currPlaying.device.name}
+        </div>
+        <RefreshIcon
+          className="btn-spotify"
+          onClick={() => {
+            getPlaybackState();
+          }}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly",
+        }}
+      >
         <div
           style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            width: window.innerWidth - scrollbar,
+            display: "flex",
+            flex: 1,
+            justifyContent: "flex-start",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
           }}
         >
+          <img src={currPlaying.image} alt={currPlaying.album.name} />
+          <div style={{ flex: "0 0 15px" }}></div>
           <div
             style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              backgroundColor: att.colours[0][4],
-              height: 25,
-            }}
-          >
-            <p id="playertext">
-              Currently playing on: {currPlaying.device.name}
-            </p>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-evenly",
-              backgroundColor: att.colours[0][4],
+              alignSelf: "center",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
           >
             <div
               style={{
-                display: "flex",
-                flex: 1,
-                justifyContent: "flex-start",
-                alignItems: "center",
-              }}
-            >
-              <img
-                src={currPlaying.image}
-                alt={currPlaying.album.name}
-                album
-                art
-              />
-              <div style={{ flex: 0.05 }}></div>
-              <div style={{ alignSelf: "center" }}>
-                <div style={{ color: att.colours[0][1] }}>
-                  {currPlaying.name}
-                </div>
-                <div style={{ color: att.colours[0][1] }}>
-                  Album: {currPlaying.album.name}
-                </div>
-                <div style={{ color: att.colours[0][1] }}>
-                  Artist: {currPlaying.artists.join(", ")}
-                </div>
-              </div>
-              <div style={{ flex: 0.1 }}></div>
-              <HeartIcon
-                onClick={() => {
-                  addOrRemoveTrack(currPlaying.id, is_saved ? false : true);
-                }}
-                is_saved={is_saved}
-              />
-            </div>
-            <div
-              style={{
-                display: "flex",
-                alignSelf: "center",
-                alignItems: "center",
-                justifyContent: "center",
-                flex: 1,
-              }}
-            >
-              <p></p>
-              <div style={{ flex: 0.1 }}></div>
-              <ShuffleSongIcon
-                className="btn-spotify"
-                onClick={() => {
-                  shufflesongs();
-                }}
-                is_shuffle={is_shuffle}
-              />
-              <div style={{ flex: 0.1 }}></div>
-              <PrevIcon
-                className="btn-spotify"
-                onClick={() => {
-                  changeTrack("previous");
-                }}
-              />
-
-              <PlayPauseIcon
-                className="btn-spotify"
-                onClick={() => {
-                  playPause();
-                }}
-                is_paused={is_paused}
-              />
-
-              <NextIcon
-                className="btn-spotify"
-                onClick={() => {
-                  changeTrack("next");
-                }}
-              />
-              <div style={{ flex: 0.1 }}></div>
-              <RepeatSongIcon
-                className="btn-spotify"
-                onClick={() => {
-                  addcounter();
-                }}
-                is_repeat={is_repeat}
-              />
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
-                flex: 1,
                 color: att.colours[0][1],
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                fontWeight: "600",
+                textOverflow: "ellipsis",
               }}
             >
-              <MuteIcon
-                className="btn-spotify"
-                onClick={() => {
-                  volcontrol(!is_mute);
-                  setMute(!is_mute);
-                }}
-                is_mute={is_mute}
-              />
-              <div style={{ flex: 0.05 }}></div>
-              <Slider value={volume} onChange={(e) => volcontrol(e)} />
+              {currPlaying.name}
+            </div>
+            <div
+              style={{
+                color: att.colours[0][1],
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                fontSize: "12px",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {currPlaying.artists.join(", ")}
             </div>
           </div>
+          <div style={{ flex: "0 0 30px" }}></div>
+          <HeartIcon
+            onClick={() => {
+              addOrRemoveTrack(currPlaying.id, is_saved ? false : true);
+            }}
+            is_saved={is_saved}
+          />
         </div>
-      }
+        <div
+          style={{
+            display: "flex",
+            alignSelf: "center",
+            alignItems: "center",
+            justifyContent: "center",
+            flex: 1,
+          }}
+        >
+          <ShuffleSongIcon
+            className="btn-spotify"
+            onClick={() => {
+              shufflesongs();
+            }}
+            is_shuffle={is_shuffle}
+          />
+          <div style={{ flex: 0.1 }}></div>
+          <PrevIcon
+            className="btn-spotify"
+            onClick={() => {
+              changeTrack("previous");
+            }}
+          />
+
+          <PlayPauseIcon
+            className="btn-spotify"
+            onClick={() => {
+              playPause();
+            }}
+            is_paused={is_paused}
+          />
+
+          <NextIcon
+            className="btn-spotify"
+            onClick={() => {
+              changeTrack("next");
+            }}
+          />
+          <div style={{ flex: 0.1 }}></div>
+          <RepeatSongIcon
+            className="btn-spotify"
+            onClick={() => {
+              repeatsong();
+            }}
+            is_repeat={is_repeat}
+          />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            flex: 1,
+            color: att.colours[0][1],
+          }}
+        >
+          <MuteIcon
+            className="btn-spotify"
+            onClick={() => {
+              volcontrol(!is_mute);
+              setMute(!is_mute);
+            }}
+            is_mute={is_mute}
+          />
+          <div style={{ flex: 0.05 }}></div>
+          <Slider value={volume} onChange={(e) => volcontrol(e)} />
+        </div>
+      </div>
     </>
   );
 }

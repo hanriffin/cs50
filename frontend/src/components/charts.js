@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useContext, useEffect } from "react";
-import { Tabs, Tab, Fade, Form } from "react-bootstrap";
+import { Tabs, Tab, Fade, Form, TabContainer } from "react-bootstrap";
 import { Chart, Chart1 } from "../utils/Chart.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../index.css";
@@ -21,77 +21,13 @@ function Charts() {
   const [sortrpatt, setSortrpatt] = useState("");
   const [sortrptempoatt, setSortrptempoatt] = useState("");
 
-  const getTopTracks = async () => {
-    const response = await get(
-      "https://api.spotify.com/v1/me/top/tracks?" +
-        queryString.stringify({
-          limit: "50",
-          time_range: att.term,
-        }),
-      "GET",
-      att.ACCESS_TOKEN
-    );
-    const TopTracks = await response.items.map(function (d) {
-      return {
-        name: d.name,
-        id: d.id,
-        album: d.album.name,
-        images: d.album.images[0].url,
-        popularity: d.popularity,
-        url: d.external_urls.spotify,
-        artist: d.artists.map((_artist) => _artist.name).join(","),
-      };
-    });
-
-    setSortatt("all");
-    // Note: Do not run setState twice (i.e. once here and once in getAudioFeatures)
-    return TopTracks;
-
-    // getAudioFeatures(TopTracks);
-  };
-
-  // Get audio features of tracks
-  const getAudioFeatures = async (tracks) => {
-    const feat = await get(
-      "https://api.spotify.com/v1/audio-features?" +
-        queryString.stringify({
-          ids: tracks.map((d) => d.id).join(","),
-        }),
-      "GET",
-      att.ACCESS_TOKEN
-    );
-    const TopTracksFeat = await tracks.map((d, index) => {
-      return { ...d, features: feat.audio_features[index] };
-    });
-    const data = TopTracksFeat.map((d, index) => {
-      return {
-        name: d.name,
-        danceability: d.features.danceability,
-        acousticness: d.features.acousticness,
-        energy: d.features.energy,
-        instrumentalness: d.features.instrumentalness,
-        valence: d.features.valence,
-        index: index,
-      };
-    });
-    att.settoptracksdata(data);
-
-    const data2 = TopTracksFeat.map((d, index) => {
-      return { name: d.name, tempo: d.features.tempo, index: index };
-    });
-
-    setSorttempoatt("all");
-    att.settoptrackstempodata(data2);
-  };
-
-  useEffect(() => {
-    getTopTracks().then((d) => getAudioFeatures(d));
-  }, [att.term]);
-
   const charting = (event) => {
     if (chartCurrentTab === "toptracks") {
       return (
-        <div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
           <Form.Select
             onChange={(e) => setSortatt(e.target.value)}
             size="sm"
@@ -109,14 +45,14 @@ function Charts() {
             <option value="instrumentalness">Instrumentalness</option>
             <option value="valence">Valence</option>
           </Form.Select>
-          <label htmlFor="sort" id="labels">
-            Sort By
-          </label>
         </div>
       );
     } else if (chartCurrentTab === "toptrackstempo") {
       return (
-        <div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
           <Form.Select
             onChange={(e) => setSorttempoatt(e.target.value)}
             size="sm"
@@ -130,9 +66,6 @@ function Charts() {
             <option value="alltempo">All</option>
             <option value="tempo">Tempo</option>
           </Form.Select>
-          <label htmlFor="sort" id="labels">
-            Sort By
-          </label>
         </div>
       );
     }
@@ -140,7 +73,10 @@ function Charts() {
   const chartingrs = (event) => {
     if (chartrsCurrentTab === "savedtracks") {
       return (
-        <div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
           <Form.Select
             onChange={(e) => setSortrsatt(e.target.value)}
             size="sm"
@@ -158,14 +94,14 @@ function Charts() {
             <option value="instrumentalness">Instrumentalness</option>
             <option value="valence">Valence</option>
           </Form.Select>
-          <label htmlFor="sort" id="labels">
-            Sort By
-          </label>
         </div>
       );
     } else if (chartrsCurrentTab === "savedtrackstempo") {
       return (
-        <div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
           <Form.Select
             onChange={(e) => setSortrstempoatt(e.target.value)}
             size="sm"
@@ -179,9 +115,6 @@ function Charts() {
             <option value="alltempo">All</option>
             <option value="tempo">Tempo</option>
           </Form.Select>
-          <label htmlFor="sort" id="labels">
-            Sort By
-          </label>
         </div>
       );
     }
@@ -189,7 +122,10 @@ function Charts() {
   const chartingrp = (event) => {
     if (chartrpCurrentTab === "recenttracks") {
       return (
-        <div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
           <Form.Select
             onChange={(e) => setSortrpatt(e.target.value)}
             size="sm"
@@ -207,14 +143,14 @@ function Charts() {
             <option value="instrumentalness">Instrumentalness</option>
             <option value="valence">Valence</option>
           </Form.Select>
-          <label htmlFor="sort" id="labels">
-            Sort By
-          </label>
         </div>
       );
     } else if (chartrpCurrentTab === "recenttrackstempo") {
       return (
-        <div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <label htmlFor="sort" id="labels">
+            Sort By
+          </label>
           <Form.Select
             onChange={(e) => setSortrptempoatt(e.target.value)}
             size="sm"
@@ -228,9 +164,6 @@ function Charts() {
             <option value="alltempo">All</option>
             <option value="tempo">Tempo</option>
           </Form.Select>
-          <label htmlFor="sort" id="labels">
-            Sort By
-          </label>
         </div>
       );
     }
@@ -357,144 +290,171 @@ function Charts() {
 
   return (
     <>
-      <h2>Charts</h2>
-      <div id="gap"></div>
-      <div>
-        <p>
-          You can view your top 50 tracks, last 50 saved tracks and last 50
-          recently played tracks. There is a dropdown where you can toggle to
-          sort the tracks in ascending order of the chosen feature.{" "}
-        </p>
-        <p>Below are the definitions that Spotify has used for the features.</p>
-        <ul>
-          <li>
-            Acousticness: A confidence measure from 0.0 to 1.0 of whether the
-            track is acoustic. 1.0 represents high confidence the track is
-            acoustic.
-          </li>
-          <li>
-            Danceability: Danceability describes how suitable a track is for
-            dancing based on a combination of musical elements including tempo,
-            rhythm stability, beat strength, and overall regularity. A value of
-            0.0 is least danceable and 1.0 is most danceable.
-          </li>
-          <li>
-            Instrumentalness: Predicts whether a track contains no vocals. "Ooh"
-            and "aah" sounds are treated as instrumental in this context. Rap or
-            spoken word tracks are clearly "vocal". The closer the
-            instrumentalness value is to 1.0, the greater likelihood the track
-            contains no vocal content. Values above 0.5 are intended to
-            represent instrumental tracks, but confidence is higher as the value
-            approaches 1.0.
-          </li>
-          <li>
-            Loudness: The overall loudness of a track in decibels (dB). Loudness
-            values are averaged across the entire track and are useful for
-            comparing relative loudness of tracks. Loudness is the quality of a
-            sound that is the primary psychological correlate of physical
-            strength (amplitude). Values typically range between -60 and 0 db.
-          </li>
-          <li>
-            Tempo: The overall estimated tempo of a track in beats per minute
-            (BPM). In musical terminology, tempo is the speed or pace of a given
-            piece and derives directly from the average beat duration.
-          </li>
-          <li>
-            Valence: A measure from 0.0 to 1.0 describing the musical
-            positiveness conveyed by a track. Tracks with high valence sound
-            more positive (e.g. happy, cheerful, euphoric), while tracks with
-            low valence sound more negative (e.g. sad, depressed, angry).
-          </li>
-        </ul>
-      </div>
-      <div id="gap"></div>
-      <div>
-        <Form.Select
-          onChange={(e) => reset(e.target.value)}
-          size="sm"
-          className="inputbox"
-          value={att.term}
-          style={{ display: "flex", float: "right" }}
-          id="term"
-        >
-          <option value="short_term">Short Term</option>
-          <option value="medium_term">Medium Term</option>
-          <option value="long_term">Long Term</option>
-        </Form.Select>
-        <label
-          htmlFor="term"
+      <div id="items">
+        <h2>Charts</h2>
+        <div id="gap"></div>
+        <div>
+          <p>
+            You can view your top 50 tracks, last 50 saved tracks and last 50
+            recently played tracks. There is a dropdown where you can toggle to
+            sort the tracks in ascending order of the chosen feature.{" "}
+          </p>
+          <p>
+            Below are the definitions that Spotify has used for the features.
+          </p>
+          <ul>
+            <li>
+              Acousticness: A confidence measure from 0.0 to 1.0 of whether the
+              track is acoustic. 1.0 represents high confidence the track is
+              acoustic.
+            </li>
+            <li>
+              Danceability: Danceability describes how suitable a track is for
+              dancing based on a combination of musical elements including
+              tempo, rhythm stability, beat strength, and overall regularity. A
+              value of 0.0 is least danceable and 1.0 is most danceable.
+            </li>
+            <li>
+              Instrumentalness: Predicts whether a track contains no vocals.
+              "Ooh" and "aah" sounds are treated as instrumental in this
+              context. Rap or spoken word tracks are clearly "vocal". The closer
+              the instrumentalness value is to 1.0, the greater likelihood the
+              track contains no vocal content. Values above 0.5 are intended to
+              represent instrumental tracks, but confidence is higher as the
+              value approaches 1.0.
+            </li>
+            <li>
+              Loudness: The overall loudness of a track in decibels (dB).
+              Loudness values are averaged across the entire track and are
+              useful for comparing relative loudness of tracks. Loudness is the
+              quality of a sound that is the primary psychological correlate of
+              physical strength (amplitude). Values typically range between -60
+              and 0 db.
+            </li>
+            <li>
+              Tempo: The overall estimated tempo of a track in beats per minute
+              (BPM). In musical terminology, tempo is the speed or pace of a
+              given piece and derives directly from the average beat duration.
+            </li>
+            <li>
+              Valence: A measure from 0.0 to 1.0 describing the musical
+              positiveness conveyed by a track. Tracks with high valence sound
+              more positive (e.g. happy, cheerful, euphoric), while tracks with
+              low valence sound more negative (e.g. sad, depressed, angry).
+            </li>
+          </ul>
+        </div>
+        <div id="gap"></div>
+        <div
           style={{
             display: "flex",
-            float: "right",
-            height: "50px",
-            lineHeight: "50px",
-            textAlign: "center",
-            paddingRight: "10px",
+            justifyContent: "flex-end",
+            alignItems: "center",
           }}
         >
-          Term
-        </label>
-        <div id="buttonalignright">{charting()}</div>
-      </div>
-      <div id="gap"></div>
+          <label
+            htmlFor="term"
+            style={{
+              display: "flex",
+              float: "right",
+              height: "50px",
+              lineHeight: "50px",
+              textAlign: "center",
+              paddingRight: "10px",
+            }}
+          >
+            Term
+          </label>
+          <Form.Select
+            onChange={(e) => reset(e.target.value)}
+            size="sm"
+            className="inputbox"
+            value={att.term}
+            style={{ display: "flex", float: "right" }}
+            id="term"
+          >
+            <option value="short_term">Short Term</option>
+            <option value="medium_term">Medium Term</option>
+            <option value="long_term">Long Term</option>
+          </Form.Select>
+          <div style = {{flex: "0 0 20px"}}></div>
+          <div id="buttonalignright">{charting()}</div>
+        </div>
+        <div id="gap"></div>
 
-      <div>
-        <Tabs
-          defaultActiveKey="toptracks"
-          id="uncontrolled-tab-example"
-          className="mb-3"
-          transition={Fade}
-          activekey={chartCurrentTab}
-          onSelect={(key) => setChartCurrentTab(key)}
-        >
-          <Tab eventKey="toptracks" title="Top Tracks Chart" def="true">
-            <Chart data={att.toptracksdata} state={att.isDark}></Chart>
-          </Tab>
-          <Tab eventKey="toptrackstempo" title="Top Tracks Tempo Chart">
-            <Chart1 data={att.toptrackstempodata} state={att.isDark}></Chart1>
-          </Tab>
-        </Tabs>
+        <div>
+          <Tabs
+            defaultActiveKey="toptracks"
+            id="uncontrolled-tab-example"
+            className="mb-3 "
+            transition={Fade}
+            activekey={chartCurrentTab}
+            onSelect={(key) => setChartCurrentTab(key)}
+          >
+            {/* <div style={{ display: "flex", justifyContent: "center" }}></div> */}
+            <Tab
+              className="text-center"
+              eventKey="toptracks"
+              title="Top Tracks Chart"
+              def="true"
+            >
+              <div style={{ width: "8vw" }}></div>
+              <Chart data={att.toptracksdata}></Chart>
+            </Tab>
+            <Tab
+              className="justify-content-center"
+              eventKey="toptrackstempo"
+              title="Top Tracks Tempo Chart"
+            >
+              <div style={{ width: "8vw" }}></div>
+              <Chart1 data={att.toptrackstempodata}></Chart1>
+            </Tab>
+          </Tabs>
+        </div>
+        <div id="buttonalignright">{chartingrs()}</div>
+        <div>
+          <Tabs
+            defaultActiveKey="savedtracks"
+            id="uncontrolled-tab-example"
+            className="mb-3"
+            transition={Fade}
+            activekey={chartrsCurrentTab}
+            onSelect={(key) => setrsChartCurrentTab(key)}
+          >
+            <Tab eventKey="savedtracks" title="Recently Saved Chart" def="true">
+              <Chart data={att.savedtracksdata}></Chart>
+            </Tab>
+            <Tab eventKey="savedtrackstempo" title="Recently Saved Tempo Chart">
+              <Chart1 data={att.savedtrackstempodata}></Chart1>
+            </Tab>
+          </Tabs>
+        </div>
+        <div id="buttonalignright">{chartingrp()}</div>
+        <div>
+          <Tabs
+            defaultActiveKey="recenttracks"
+            id="uncontrolled-tab-example"
+            className="mb-3"
+            transition={Fade}
+            activekey={chartrpCurrentTab}
+            onSelect={(key) => setrpChartCurrentTab(key)}
+          >
+            <Tab
+              eventKey="recenttracks"
+              title="Recently Played Chart"
+              def="true"
+            >
+              <Chart data={att.recenttracksdata}></Chart>
+            </Tab>
+            <Tab
+              eventKey="recenttrackstempo"
+              title="Recently Played Tempo Chart"
+            >
+              <Chart1 data={att.recenttrackstempodata}></Chart1>
+            </Tab>
+          </Tabs>
+        </div>
       </div>
-      <div id="buttonalignright">{chartingrs()}</div>
-      <div>
-        <Tabs
-          defaultActiveKey="savedtracks"
-          id="uncontrolled-tab-example"
-          className="mb-3"
-          transition={Fade}
-          activekey={chartrsCurrentTab}
-          onSelect={(key) => setrsChartCurrentTab(key)}
-        >
-          <Tab eventKey="savedtracks" title="Recently Saved Chart" def="true">
-            <Chart data={att.savedtracksdata} state={att.isDark}></Chart>
-          </Tab>
-          <Tab eventKey="savedtrackstempo" title="Recently Saved Tempo Chart">
-            <Chart1 data={att.savedtrackstempodata} state={att.isDark}></Chart1>
-          </Tab>
-        </Tabs>
-      </div>
-      <div id="buttonalignright">{chartingrp()}</div>
-      <div>
-        <Tabs
-          defaultActiveKey="recenttracks"
-          id="uncontrolled-tab-example"
-          className="mb-3"
-          transition={Fade}
-          activekey={chartrpCurrentTab}
-          onSelect={(key) => setrpChartCurrentTab(key)}
-        >
-          <Tab eventKey="recenttracks" title="Recently Played Chart" def="true">
-            <Chart data={att.recenttracksdata} state={att.isDark}></Chart>
-          </Tab>
-          <Tab eventKey="recenttrackstempo" title="Recently Played Tempo Chart">
-            <Chart1
-              data={att.recenttrackstempodata}
-              state={att.isDark}
-            ></Chart1>
-          </Tab>
-        </Tabs>
-      </div>
-      <GetDevice />
     </>
   );
 }
