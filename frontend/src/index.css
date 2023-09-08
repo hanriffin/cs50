@@ -211,6 +211,7 @@ label {
 }
 
 /* all submit buttons */ 
+/* all submit buttons */ 
 .btn-primary {
   background-color: var(--2) !important;
   color: var(--4) !important;

@@ -13,7 +13,6 @@ import {
   ShuffleSongIcon,
   RefreshIcon,
 } from "../utils/icon";
-import { Slider } from "./slider.js";
 
 export default function Player({ DeviceID }) {
   const att = useContext(Context);

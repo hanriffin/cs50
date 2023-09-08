@@ -8,6 +8,7 @@ import queryString from "querystring";
 import { Context } from "../utils/context.js";
 import { get } from "../utils/get.js";
 import GetDevice from "./getdevice.jsx";
+import { getTopTracksNew, getAudioFeaturesNew } from "../utils/api_calls.js";
 
 function Charts() {
   const att = useContext(Context);
@@ -20,7 +21,9 @@ function Charts() {
   const [sortrstempoatt, setSortrstempoatt] = useState("");
   const [sortrpatt, setSortrpatt] = useState("");
   const [sortrptempoatt, setSortrptempoatt] = useState("");
-
+  useEffect(() => {
+    getTopTracksNew(att).then((d) => getAudioFeaturesNew(att, "top", d));
+  }, [att.term]);
   const charting = (event) => {
     if (chartCurrentTab === "toptracks") {
       return (
