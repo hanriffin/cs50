@@ -319,7 +319,6 @@ variant="primary" type="submit">
                             style={{ color: att.colours[0][4] }}
                             className="text-center"
                           >
-                            {" "}
                             <a
                               href={d.url}
                               className="top"
@@ -331,7 +330,7 @@ variant="primary" type="submit">
                           </Card.Title>
                           <Card.Text
                             style={{
-                              color: att.colours[0][3],
+                              color: att.colours[0][2],
                               textAlign: "center",
                               fontVariant: "small-caps",
                             }}
@@ -371,8 +370,8 @@ variant="primary" type="submit">
                             >
                               {d.name}
                             </a>
-                          </Card.Title>{" "}
-                          <Card.Text style={{ color: att.colours[0][3] }}>
+                          </Card.Title>
+                          <Card.Text style={{ color: att.colours[0][2] }}>
                             Album: {d.album}
                           </Card.Text>
                         </Card.Body>

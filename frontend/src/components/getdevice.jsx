@@ -4,6 +4,7 @@ import queryString from "querystring";
 import { get, toggle } from "../utils/get.js";
 import Player from "./player";
 import { RefreshIcon, ToggleOverlayIcon } from "../utils/icon.js";
+import "../index.css";
 
 export default function GetDevice() {
   const att = useContext(Context);

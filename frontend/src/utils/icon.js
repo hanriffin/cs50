@@ -5,7 +5,7 @@ import {
   MdPause,
   MdSkipNext,
   MdSkipPrevious,
-  MdArrowDropDownCircle,
+  MdOutlineArrowDropDownCircle,
   MdPlayCircleFilled,
   MdRepeat,
   MdRepeatOne,
@@ -14,8 +14,7 @@ import {
   MdVolumeOff,
   MdOutlineRefresh,
 } from "react-icons/md";
-// import React, { useState, useContext, useEffect } from "react";
-// import "../index.css";
+import "../index.css";
 
 const iconSize = 24;
 
@@ -70,7 +69,7 @@ export const MuteIcon = ({ is_mute, onClick }) => {
   }
 };
 
-export const RefreshRecoIcon = ({  iconColor, onClick }) => {
+export const RefreshRecoIcon = ({  onClick }) => {
   const Icon = MdOutlineRefresh;
   // const iconColor = colours[0][4];
 
@@ -80,7 +79,6 @@ export const RefreshRecoIcon = ({  iconColor, onClick }) => {
         className="refreshreco"
         onClick={onClick}
         style={{
-          fill: iconColor,
           cursor: "pointer",
           height: iconSize - 4,
           width: iconSize - 4,
@@ -185,11 +183,10 @@ export const PrevIcon = ({ onClick }) => {
     </div>
   );
 };
-
 export const ToggleOverlayIcon = ({ visible, onClick }) => {
-  const Icon = MdArrowDropDownCircle;
+  const Icon = MdOutlineArrowDropDownCircle;
   const rotation = visible ? "" : "rotate(180deg)";
-  const iconColor = colours[0][4];
+  // const iconColor = colours[0][4];
   const bottom = visible ? "120px" : "1vw";   // 120px because the player height is fixed!
   
   return (
@@ -210,17 +207,16 @@ export const ToggleOverlayIcon = ({ visible, onClick }) => {
       <Icon
         onClick={onClick}
         style={{
-          fill: iconColor,
+          // fill: iconColor,
           cursor: "pointer",
-          height: iconSize,
-          width: iconSize,
+          height: iconSize + 1,
+          width: iconSize + 1,
           transform: rotation,
         }}
       />
     </div>
   );
 };
-
 export const PlaySongIcon = ({ onClick }) => {
   const Icon = MdPlayCircleFilled;
   const iconColor = colours[0][7];
