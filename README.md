@@ -24,13 +24,13 @@ File: login.js
 
 This page has a basic description of what the webpage does and a button which redirects the user's to a page where they are prompted for their Spotify login details. 
 
-### Authentication & Logging in (**)
-When the user clicks on the login button, the application makes a request to the authorization server and the authorization server displays a dialog asking the user to grant permissions to the application. Once the user accepts the permissions, the authorization server redirects the user back to the application using a URL which contains an authorization code. The application requests an access token using the authorization code. With the access token, the application is able to make API calls which can pull all the necessary information. 
-
-### Scopes
+### Authentication, Scopes & Logging in (**)
 File: handler.js
+When the user clicks on the login button, the user will be prompted to login to their Spotify account. After providing login information to your Spotify account, the application makes a request to the authorization server and the authorization server displays a dialog asking the user to grant permissions to the application. A list of information or scopes will be shown. Scopes allow the application access to specific information and to specific functionalities such as modifying your playlist or getting your saved songs. Scopes also allow the application to take actions on Spotify on the user's behalf. This provides transparency to the user on what the application can do and which specific information the application can access.
 
-After providing login information to your Spotify account, a list of information or scopes will be shown. Scopes allow the application access to specific information and to specific functionalities such as modifying your playlist or getting your saved songs. Scopes also allow the application to take actions on Spotify on the user's behalf. This provides transparency to the user on what the application can do and which specific information the application can access. Upon accepting, the app will only then be able to work. Here are the list of permissions (Scopes) that are used and what information it gives access to and what it can do
+Once the user accepts the permissions, the authorization server redirects the user back to the application using a URL which contains an authorization code. The application requests an access token using the authorization code. With the access token, the application is able to make API calls which can pull all the necessary information. 
+
+Here are the list of permissions (scopes) that are used and what information it gives access to and what it can do
 
 1. 'streaming': Play content and control playback on your other devices.
 2. 'user-read-private': Access your subscription details.
@@ -73,41 +73,37 @@ Upon successful agreement to the scopes that will be used, the application will 
 This section describes the how the application is structured, what files are used in the framework and what files or items are used in the overall architecture of the app.
 
 ### Application
-File: App.js (**)
-After the access token is obtained, the user is redirected back to the home page. The authorization is all done in the backend. Hence, the access code has to be passed from the backend to the frontend. This is achieved by adding the access token to the headers so that they can be extracted by the frontend and used for the API calls. This file also contains the main structure of the webpage: the navigation bar and dark/light mode toggle. 
+File: App.js
+After the access token is obtained, the user is redirected back to the home page. The authorization is done in the backend. Hence, the access code has to be passed from the backend to the frontend. This is achieved by adding the access token to the headers so that they can be extracted by the frontend and used for the API calls. This file also contains the main structure of the webpage: the navigation bar and dark/light mode toggle. 
 
 In the utils folder, we have several utility functions or react components which are used several times throughout the app and thus extracted to make the code more concise. Some key files are detailed below:
 
-#### Context
+### Context
 File: context.js
 
 Creates context which will be used to store all the data returned from the API calls so the data can be used across various React components.
 
 
-
-### Refresh Tokens (I think can remove this cos i dont recall if i actually checked this and whether it works)
-File: refreshtoken.js 
-
-#### HTTP methods
-File: get.js (**)
+### HTTP methods
+File: get.js
 This file contains utility functions for sending API requests and retrieving data. 
 
-#### API Calls (**)
-File: api_calls.js (**)
+### API Calls
+File: api_calls.js
 This file contains functions for specific API calls which are reused multiple times. 
 
-#### Icons
+### Icons
 File: icon.js
 
 This javascript contains all the icons that were used in the different webpages. The icons were installed from a package called react-icons. We can then change each icon's colour, change which icon is displayed depending on the state and the icon size. For example, When we click on the play button in player, it will change to the pause icon. By selecting the appropriate icons, the user would find the application more intuitive and easier to use without much prompts.
 
 ## Web Player
 
-### Spotify Web Player (**)
+### Spotify Web Player
 We coded a web player into the application. It is an overlay at the bottom of the screen which can be used regardless of which page of the app you are at. Any buttons that you click on the web player will be reflected in your Spotify Desktop App, Spotify Mobile App or Web App. Thus, whilst using the application, you can freely play / pause / skip / change the volume etc without having to go into your Spotify App. 
 
 ### Player
-File: player.jsx (**)
+File: player.jsx
 There is an Web API call that checks the playback state (e.g., currently playing song, volume, shuffle state). There is a function that calls the API and updates the icon and relevant information (e.g. song, album, artist) so that it correctly reflects the state of the spotify player. 
 
 ### Volume Slider
@@ -120,8 +116,6 @@ File: getdevice.jsx
 
 This javascript gets checks for all available devices that the user has and if a device is active, it will render the player and play the song that is in queue. If no devices are active, it will provide a list of currently linked devices to choose from, and the user will be able to select which device to activate. However, if there are no linked devices, the user will be prompted to launch an instance of Spotify. Once a device is activated, the player will automatically play the song that is in queue.
 
-### Web Playback
-File: WebPlayback.jsx (NOT USED)
 
 ## Application Navigations
 These are the navigations that are on top of the app. Clicking each navigation will redirect you to to each part of the app, Home, Top, Analysis, Charts and Recommendations.
