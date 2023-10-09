@@ -126,7 +126,7 @@ export default function GetDevice() {
             }}
           />
           <div>
-            No active devices are found. Please launch an instance of Spotify
+            No active devices are found. Please launch an instance of Spotify.
           </div>
         </div>
       </>

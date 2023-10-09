@@ -2,7 +2,7 @@
 #### Video Demo:  <URL HERE>
 
 ## Introduction
-This is a web application that analyses your Spotify listening history, creates visualization on the attributes of the songs that you listen to, recommends songs based on your Top 5 Tracks or Songs and creates playlists based on those recommendations. It also acts as a Spotify web player where you can play or pause the current song, skip to the next, control the volume of the music played, add the song to your Liked songs. The application uses Node and React.js and API calls to the Spotify server to extract out your information. However, in order to do so, you'd need to login and agree to the authorization. 
+This is a web application that analyses your Spotify listening history, creates visualization on the attributes of the songs that you listen to, recommends songs based on your Top 5 Tracks or Songs and creates playlists based on those recommendations. It also acts as a Spotify web player where you can play or pause the current song, skip to the next, control the volume of the music played and add the song to your Liked songs. The application uses Node and React.js to create a webapp that sends API calls to the Spotify server to extract out your information. However, in order to do so, you'd need to login and agree to the authorization. 
 
 ## Structure
 ### React
@@ -13,7 +13,7 @@ We used Node for the backend portion of the project.
 
 
 ## Creating the app on Spotify
-To create an app on Spotify and use its API, we had to create an app on Spotify's developer site. You will need to input a redirect URI where the users will be redirected after authentication is successful or failed. Spotify will then provide a Client ID, which is a unique identifier for the app and a Client Secret which is the key required to authorize our Web API calls. Both are stored in an environment variable or .env file which is useful to store sensitive information.
+To create an app on Spotify and use its API, we had to create an app on Spotify's developer site and provide a redirect URI where the users will be redirected after authentication is successful or failed. Spotify will then provide a Client ID, which is a unique identifier for the app which is required for requesting user authorization. The Client ID is stored in an .env file which is useful for storing sensitive information.
 
 ## Authorization, tokens (**)
 
@@ -22,10 +22,10 @@ To create an app on Spotify and use its API, we had to create an app on Spotify'
 ### Homepage
 File: login.js
 
-This page allows your to click a button to be directed to the Spotify log in page. It has a basic description of what the webpage does and a button which will redirect you to Spotify's login page.
+This page has a basic description of what the webpage does and a button which redirects the user's to a page where they are prompted for their Spotify login details. 
 
 ### Authentication & Logging in (**)
-Write a short para (**)
+When the user clicks on the login button, the application makes a request to the authorization server and the authorization server displays a dialog asking the user to grant permissions to the application. Once the user accepts the permissions, the authorization server redirects the user back to the application using a URL which contains an authorization code. The application requests an access token using the authorization code. With the access token, the application is able to make API calls which can pull all the necessary information. 
 
 ### Scopes
 File: handler.js
@@ -74,38 +74,41 @@ This section describes the how the application is structured, what files are use
 
 ### Application
 File: App.js (**)
+After the access token is obtained, the user is redirected back to the home page. The authorization is all done in the backend. Hence, the access code has to be passed from the backend to the frontend. This is achieved by adding the access token to the headers so that they can be extracted by the frontend and used for the API calls. This file also contains the main structure of the webpage: the navigation bar and dark/light mode toggle. 
 
-### Context
+In the utils folder, we have several utility functions or react components which are used several times throughout the app and thus extracted to make the code more concise. Some key files are detailed below:
+
+#### Context
 File: context.js
 
-Creates context which will be used to store all the data returned from the API calls
+Creates context which will be used to store all the data returned from the API calls so the data can be used across various React components.
 
-### Navigation Bar
-File: navbar.js
 
-This javascript is for the navigation bar. By clicking on the different words, the user will then be redirected to the page. There is a function which the user can toggle between Dark mode and Light mode.
 
-### Refresh Tokens
-File: refreshtoken.js (**)
+### Refresh Tokens (I think can remove this cos i dont recall if i actually checked this and whether it works)
+File: refreshtoken.js 
 
-### HTTP methods
+#### HTTP methods
 File: get.js (**)
+This file contains utility functions for sending API requests and retrieving data. 
 
-### API Calls (**)
+#### API Calls (**)
 File: api_calls.js (**)
+This file contains functions for specific API calls which are reused multiple times. 
 
-### Icons
+#### Icons
 File: icon.js
 
-This javascript contains all the icons that were used in the different webpages. The icons were installed from a package called react-icons. We can then change each icon's colour, change which icon is displayed depending on the state and the icon size. For example, When we press the play button on player, it will change to the pause icon. By selecting the appropriate icons, the user would find the application more intuitive and easier to use without much prompts.
+This javascript contains all the icons that were used in the different webpages. The icons were installed from a package called react-icons. We can then change each icon's colour, change which icon is displayed depending on the state and the icon size. For example, When we click on the play button in player, it will change to the pause icon. By selecting the appropriate icons, the user would find the application more intuitive and easier to use without much prompts.
 
 ## Web Player
 
 ### Spotify Web Player (**)
-We coded a web player into the application. Any buttons that you click on the web player will be reflected in your Spotify Desktop App, Spotify Mobile App or Web App. Thus, whilst using the application, you can freely play / pause / skip / change the volume etc without having to go into your Spotify App.
+We coded a web player into the application. It is an overlay at the bottom of the screen which can be used regardless of which page of the app you are at. Any buttons that you click on the web player will be reflected in your Spotify Desktop App, Spotify Mobile App or Web App. Thus, whilst using the application, you can freely play / pause / skip / change the volume etc without having to go into your Spotify App. 
 
 ### Player
 File: player.jsx (**)
+There is an Web API call that checks the playback state (e.g., currently playing song, volume, shuffle state). There is a function that calls the API and updates the icon and relevant information (e.g. song, album, artist) so that it correctly reflects the state of the spotify player. 
 
 ### Volume Slider
 File: slider.js
@@ -115,10 +118,10 @@ This javascript exports the slider used in the webplayer which controls the volu
 ### Devices
 File: getdevice.jsx
 
-This javascript gets checks for all available devices that the user has and if a device is active, it will render the player and play the song. If no devices are active, it will provide a list of devices to choose from, and the user will be able to select which device to activate. Once a device is active or activated, the player will automatically play the song that is in queue.
+This javascript gets checks for all available devices that the user has and if a device is active, it will render the player and play the song that is in queue. If no devices are active, it will provide a list of currently linked devices to choose from, and the user will be able to select which device to activate. However, if there are no linked devices, the user will be prompted to launch an instance of Spotify. Once a device is activated, the player will automatically play the song that is in queue.
 
 ### Web Playback
-File: WebPlayback.jsx (**)
+File: WebPlayback.jsx (NOT USED)
 
 ## Application Navigations
 These are the navigations that are on top of the app. Clicking each navigation will redirect you to to each part of the app, Home, Top, Analysis, Charts and Recommendations.
@@ -148,12 +151,12 @@ This page charts out the attributes your top 50, last 50 saved and last 50 recen
 
 File: Chart.js
 
-This file contains the charting code which we have used from recharts, which is a charting library built on React components. Due to how the attribute tempo is not between 0 and 1, we had two create two line charts, one primarily for tempo and the other for the rest
+This file is located in the utils folder and contains the charting code which we have used from recharts, a charting library built on React components. Due to how the tempo attribute is not between 0 and 1, we had two create two line charts, one primarily for tempo and the other for the rest.
 
 ### Recommendations
 File: recommendations.js
 
-This page recommends songs based on your top artists or top tracks. There is an Spotify API call that can recommend songs based on the artists or songs that is in the query but the total is up to 5 songs and artists. Thus in order to make things more unpredictable and more fun, we've decided to randomly select 5 songs and artists to be used for the recommendations. There is a button that refreshes the randomly selected 5 songs or artists to keep things fresh. 
+This page recommends songs based on your top artists or top tracks. There is an Spotify API call that can recommend songs based on the artists or songs that is in the query but the total is up to 5 songs and artists. Thus in order to make things more unpredictable and more fun, we've decided to randomly select 5 of the user's top songs and artists to be used for the recommendations. There is a button that refreshes the randomly selected 5 songs or artists to keep things fresh. 
 
 The API will then return a list of 100 songs based on either the top tracks or top artists selected by the tab. There is a refresh button if you want to randomly get another set of 100 songs based on the randomly selected top 5 tracks or artists. Clicking on the play button will send an API call to play the song on your Spotify player for you to listen to the song. If you enjoy the song and would like to add the song to a newly created playlist, you can simply select the songs by clicking on the check box and clicking on the create playlist button. This will create a playlist with the selected songs in your Spotify app. If 100 songs is too much for you to handle, you can also reduce the list by changing the number to what you want. Selecting all and unselecting all just makes things easier if you want to click all or none of the checkboxes. 
 
