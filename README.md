@@ -1,5 +1,5 @@
 # Spotify
-#### Video Demo:  <URL HERE>
+#### Video Demo:  https://www.youtube.com/watch?v=0O6Zw1LLHuk
 
 ## Introduction
 This is a web application that analyses your Spotify listening history, creates visualization on the attributes of the songs that you listen to, recommends songs based on your Top 5 Tracks or Songs and creates playlists based on those recommendations. It also acts as a Spotify web player where you can play or pause the current song, skip to the next, control the volume of the music played and add the song to your Liked songs. The application uses Node and React.js to create a webapp that sends API calls to the Spotify server to extract out your information. However, in order to do so, you'd need to login and agree to the authorization. 
@@ -11,11 +11,8 @@ We used React for the frontend portion of the project.
 ### Node
 We used Node for the backend portion of the project. 
 
-
 ## Creating the app on Spotify
 To create an app on Spotify and use its API, we had to create an app on Spotify's developer site and provide a redirect URI where the users will be redirected after authentication is successful or failed. Spotify will then provide a Client ID, which is a unique identifier for the app which is required for requesting user authorization. The Client ID is stored in an .env file which is useful for storing sensitive information.
-
-## Authorization, tokens (**)
 
 
 ## Login
@@ -24,8 +21,9 @@ File: login.js
 
 This page has a basic description of what the webpage does and a button which redirects the user's to a page where they are prompted for their Spotify login details. 
 
-### Authentication, Scopes & Logging in (**)
+### Authentication, Scopes & Logging in
 File: handler.js
+
 When the user clicks on the login button, the user will be prompted to login to their Spotify account. After providing login information to your Spotify account, the application makes a request to the authorization server and the authorization server displays a dialog asking the user to grant permissions to the application. A list of information or scopes will be shown. Scopes allow the application access to specific information and to specific functionalities such as modifying your playlist or getting your saved songs. Scopes also allow the application to take actions on Spotify on the user's behalf. This provides transparency to the user on what the application can do and which specific information the application can access.
 
 Once the user accepts the permissions, the authorization server redirects the user back to the application using a URL which contains an authorization code. The application requests an access token using the authorization code. With the access token, the application is able to make API calls which can pull all the necessary information. 
@@ -74,6 +72,7 @@ This section describes the how the application is structured, what files are use
 
 ### Application
 File: App.js
+
 After the access token is obtained, the user is redirected back to the home page. The authorization is done in the backend. Hence, the access code has to be passed from the backend to the frontend. This is achieved by adding the access token to the headers so that they can be extracted by the frontend and used for the API calls. This file also contains the main structure of the webpage: the navigation bar and dark/light mode toggle. 
 
 In the utils folder, we have several utility functions or react components which are used several times throughout the app and thus extracted to make the code more concise. Some key files are detailed below:
@@ -86,10 +85,12 @@ Creates context which will be used to store all the data returned from the API c
 
 ### HTTP methods
 File: get.js
+
 This file contains utility functions for sending API requests and retrieving data. 
 
 ### API Calls
 File: api_calls.js
+
 This file contains functions for specific API calls which are reused multiple times. 
 
 ### Icons
@@ -104,6 +105,7 @@ We coded a web player into the application. It is an overlay at the bottom of th
 
 ### Player
 File: player.jsx
+
 There is an Web API call that checks the playback state (e.g., currently playing song, volume, shuffle state). There is a function that calls the API and updates the icon and relevant information (e.g. song, album, artist) so that it correctly reflects the state of the spotify player. 
 
 ### Volume Slider
