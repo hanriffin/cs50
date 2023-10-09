@@ -282,6 +282,7 @@ variant="primary" type="submit">
             defaultActiveKey="topartists"
             id="lasttop50tracks"
             className="mb-2 justify-content-center"
+            onSelect={(key) => settab(key)}
           >
             <Tab eventKey="topartists" title="Top Artists">
               <Container>
@@ -344,7 +345,7 @@ variant="primary" type="submit">
                 </Row>
               </Container>
             </Tab>
-            <Tab eventKey="top50tracks" title="Top Tracks">
+            <Tab eventKey="toptracks" title="Top Tracks">
               <Container>
                 <Row className="mx-2 row row-cols-5">
                   {att.toptracksslice.map((d) => {
